@@ -10,8 +10,8 @@ public class PlayerNameManager : MonoBehaviour
 
     void Start()
     {
-        if (PlayerPrefs.HasKey("username"){
-            usernameInput = PlayerPrefs.GetString("username");
+        if (PlayerPrefs.HasKey("username")){
+            usernameInput.text = PlayerPrefs.GetString("username");
             PhotonNetwork.NickName = PlayerPrefs.GetString("username");
         }
         else
