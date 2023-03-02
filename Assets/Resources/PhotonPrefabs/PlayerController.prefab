@@ -5219,6 +5219,8 @@ MonoBehaviour:
   throwkey: 323
   throwForce: 10
   throwUpwardForce: 0
+  thrustForce: 5
+  rotationThrow: 500
 --- !u!1 &3720483077754485531
 GameObject:
   m_ObjectHideFlags: 0
@@ -5243,7 +5245,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3720483077754485531}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0.197, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -5923,6 +5925,10 @@ PrefabInstance:
     m_TransformParent: {fileID: 565462481538322435}
     m_Modifications:
     - target: {fileID: 2859531764709938211, guid: a8fc2ad44a5d16b4ab8db5aeb1ffa75d, type: 3}
+      propertyPath: m_Drag
+      value: 0.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 2859531764709938211, guid: a8fc2ad44a5d16b4ab8db5aeb1ffa75d, type: 3}
       propertyPath: m_UseGravity
       value: 1
       objectReference: {fileID: 0}
@@ -5930,6 +5936,10 @@ PrefabInstance:
       propertyPath: m_Constraints
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4155603809804866942, guid: a8fc2ad44a5d16b4ab8db5aeb1ffa75d, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 10308, guid: 0000000000000000f000000000000000, type: 0}
     - target: {fileID: 4478351341618136146, guid: a8fc2ad44a5d16b4ab8db5aeb1ffa75d, type: 3}
       propertyPath: m_RootOrder
       value: -1

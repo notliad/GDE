@@ -16,8 +16,12 @@ public class ThrowEspada : Espada {
     public KeyCode throwkey = KeyCode.Mouse0;
     public float throwForce;
     public float throwUpwardForce;
+    public float thrustForce;
+    public float rotationThrow;
 
     bool readyToThrow;
+
+    private Rigidbody projectileRb;
 
     private void Start() {
         readyToThrow = true;
@@ -29,16 +33,22 @@ public class ThrowEspada : Espada {
         {
             Use();
         }
+        if (projectileRb != null)
+        {
+            projectileRb.AddRelativeForce(Vector3.up * -thrustForce, ForceMode.Force);
+        }
     }
     public override void Use()
     {
         readyToThrow = false;
         GameObject projectile = Instantiate(objectToThrow, attackPoint.position, cam.transform.rotation);
-        Rigidbody projectileRb = projectile.GetComponent<Rigidbody>();
+        projectileRb = projectile.GetComponent<Rigidbody>();
 
         Vector3 forceToAdd = cam.transform.forward * throwForce + transform.up * throwUpwardForce;
+        Vector3 torque = projectile.transform.right * rotationThrow;
 
         projectileRb.AddForce(forceToAdd, ForceMode.Impulse);
+        projectileRb.AddTorque(torque);
 
         totalThrows--;
 
