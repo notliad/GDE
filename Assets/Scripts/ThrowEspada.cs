@@ -1,8 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Photon.Pun;
 
-public class ThrowEspada : Gun {
+
+public class ThrowEspada : Espada {
 
     public Transform cam;
     public Transform attackPoint;
@@ -31,14 +33,12 @@ public class ThrowEspada : Gun {
     public override void Use()
     {
         readyToThrow = false;
-        GameObject projectile = Instantiate(objectToThrow, attackPoint.position, cam.rotation);
+        GameObject projectile = Instantiate(objectToThrow, attackPoint.position, cam.transform.rotation);
         Rigidbody projectileRb = projectile.GetComponent<Rigidbody>();
 
         Vector3 forceToAdd = cam.transform.forward * throwForce + transform.up * throwUpwardForce;
 
         projectileRb.AddForce(forceToAdd, ForceMode.Impulse);
-        
-
 
         totalThrows--;
 
@@ -49,4 +49,5 @@ public class ThrowEspada : Gun {
     {
         readyToThrow = true;
     }
+
 }
