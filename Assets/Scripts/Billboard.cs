@@ -10,7 +10,7 @@ public class billboard : MonoBehaviour
     {
         if(cam == null)
         {
-            cam = FindObjectOfType<Camera>();
+            cam = FindFirstObjectByType<Camera>();
         }
         if(cam == null)
         {

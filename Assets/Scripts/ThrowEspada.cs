@@ -23,7 +23,10 @@ public class ThrowEspada : Espada {
 
     private Rigidbody projectileRb;
 
+    PhotonView PV;
+
     private void Start() {
+        PV = GetComponent<PhotonView>();
         readyToThrow = true;
     }
 
@@ -41,23 +44,39 @@ public class ThrowEspada : Espada {
     public override void Use()
     {
         readyToThrow = false;
-        GameObject projectile = Instantiate(objectToThrow, attackPoint.position, cam.transform.rotation);
-        projectileRb = projectile.GetComponent<Rigidbody>();
 
-        Vector3 forceToAdd = cam.transform.forward * throwForce + transform.up * throwUpwardForce;
-        Vector3 torque = projectile.transform.right * rotationThrow;
+        if (PV.IsMine)
+        {
+            PV.RPC("RPC_Throw", RpcTarget.AllBuffered);
+        }
+            totalThrows--;
 
-        projectileRb.AddForce(forceToAdd, ForceMode.Impulse);
-        projectileRb.AddTorque(torque);
-
-        totalThrows--;
-
-        Invoke(nameof(ResetThrow), throwCooldown);
+            Invoke(nameof(ResetThrow), throwCooldown);
     }
 
     private void ResetThrow()
     {
         readyToThrow = true;
+    }
+
+    [PunRPC]
+    void RPC_Throw()
+    {
+        if (PV.IsMine)
+        {
+
+        Transform cam = FindFirstObjectByType<Camera>().transform;
+
+        GameObject projectilePhoton = PhotonNetwork.Instantiate(objectToThrow.name, attackPoint.position, cam.transform.rotation);
+        projectileRb = projectilePhoton.GetComponent<Rigidbody>();
+
+        Vector3 forceToAdd = cam.transform.forward * throwForce + transform.up * throwUpwardForce;
+        Vector3 torque = projectilePhoton.transform.right * rotationThrow;
+
+        projectileRb.AddForce(forceToAdd, ForceMode.Impulse);
+        projectileRb.AddTorque(torque);
+        }
+
     }
 
 }
