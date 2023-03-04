@@ -12,7 +12,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
     [SerializeField] GameObject ui;
     [SerializeField] GameObject cameraHolder;
     [SerializeField] float mouseSensitivity, sprintSpeed, walkSpeed, jumpForce, smoothTime;
-
+    [SerializeField] Animator animator;
     [SerializeField] Item[] items;
 
     int itemIndex;
@@ -107,6 +107,8 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
 
     void Move()
     {
+        Animate();
+
         Vector3 moveDir = new Vector3(Input.GetAxisRaw("Horizontal"), 0, Input.GetAxisRaw("Vertical")).normalized;
 
         moveAmount = Vector3.SmoothDamp(moveAmount, moveDir * (Input.GetKey(KeyCode.LeftShift) ? sprintSpeed : walkSpeed), ref smoothMoveVelocity, smoothTime);
@@ -115,10 +117,14 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
 
     void Jump()
     {
-
         if (Input.GetKeyDown(KeyCode.Space) && grounded)
         {
             rb.AddForce(transform.up * jumpForce);
+            animator.SetBool("Jump", true);
+        }
+        if (!grounded)
+        {
+            animator.SetBool("Jump", false);
         }
     }
 
@@ -201,4 +207,18 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
     {
         playerManager.Die();
     }
+
+    void Animate()
+    {
+        animator.SetBool("RunLeft", Input.GetAxisRaw("Vertical") > 0 && Input.GetAxisRaw("Horizontal") < 0);
+        animator.SetBool("RunRight", Input.GetAxisRaw("Vertical") > 0 && Input.GetAxisRaw("Horizontal") > 0);
+        animator.SetBool("BackLeft", Input.GetAxisRaw("Vertical") < 0 && Input.GetAxisRaw("Horizontal") < 0);
+        animator.SetBool("BackRight", Input.GetAxisRaw("Vertical") < 0 && Input.GetAxisRaw("Horizontal") > 0);
+        animator.SetBool("StrafeLeft", Input.GetAxisRaw("Horizontal") < 0);
+        animator.SetBool("RunForward", Input.GetAxisRaw("Vertical") > 0);
+        animator.SetBool("Back", Input.GetAxisRaw("Vertical") < 0);
+        animator.SetBool("StrafeRight", Input.GetAxisRaw("Horizontal") > 0);
+        
+    }
+
 }
