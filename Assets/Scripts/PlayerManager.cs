@@ -7,7 +7,7 @@ using System.IO;
 public class PlayerManager : MonoBehaviour
 {
     PhotonView PV;
-
+    Animator animator;
     GameObject controller;
 
     void Awake()
@@ -28,6 +28,7 @@ public class PlayerManager : MonoBehaviour
     {
         Transform spawnpoint = SpawnManager.Instance.GetSpawnPoint();
         controller = PhotonNetwork.Instantiate(Path.Combine("PhotonPrefabs", "PlayerController"), spawnpoint.position, spawnpoint.rotation, 0, new object[] {PV.ViewID});
+        animator = controller.GetComponent<Animator>();
     }
 
     public void Die()

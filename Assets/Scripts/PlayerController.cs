@@ -47,6 +47,8 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
         Look();
         Move();
         Jump();
+        Animate();
+
 
         for (int i = 0; i < items.Length; i++)
         {
@@ -107,12 +109,18 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
 
     void Move()
     {
-        Animate();
+        Vector3 moveDir;
+        if (Input.GetKey(KeyCode.LeftShift))
+        {
+            moveDir = new Vector3(0, 0, Input.GetAxisRaw("Vertical")).normalized;
 
-        Vector3 moveDir = new Vector3(Input.GetAxisRaw("Horizontal"), 0, Input.GetAxisRaw("Vertical")).normalized;
+        }
+        else
+        {
+            moveDir = new Vector3(Input.GetAxisRaw("Horizontal"), 0, Input.GetAxisRaw("Vertical")).normalized;
+        }
 
         moveAmount = Vector3.SmoothDamp(moveAmount, moveDir * (Input.GetKey(KeyCode.LeftShift) ? sprintSpeed : walkSpeed), ref smoothMoveVelocity, smoothTime);
-
     }
 
     void Jump()
@@ -218,6 +226,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
         animator.SetBool("RunForward", Input.GetAxisRaw("Vertical") > 0);
         animator.SetBool("Back", Input.GetAxisRaw("Vertical") < 0);
         animator.SetBool("StrafeRight", Input.GetAxisRaw("Horizontal") > 0);
+        animator.SetBool("Sprint", Input.GetKey(KeyCode.LeftShift));
         
     }
 

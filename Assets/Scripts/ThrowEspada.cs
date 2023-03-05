@@ -32,7 +32,7 @@ public class ThrowEspada : Espada {
 
     private void Update()
     {
-        if(Input.GetKeyDown(throwkey) && readyToThrow && totalThrows > 0)
+        if (Input.GetKeyDown(throwkey) && readyToThrow && totalThrows > 0)
         {
             Use();
         }
@@ -40,6 +40,7 @@ public class ThrowEspada : Espada {
         {
             projectileRb.AddRelativeForce(Vector3.up * -thrustForce, ForceMode.Force);
         }
+
     }
     public override void Use()
     {
