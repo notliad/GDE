@@ -13,6 +13,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
     [SerializeField] GameObject cameraHolder;
     [SerializeField] float mouseSensitivity, sprintSpeed, walkSpeed, jumpForce, smoothTime;
     [SerializeField] Animator animator;
+    [SerializeField] AudioSource runFootsteps;
     [SerializeField] Item[] items;
 
     int itemIndex;
@@ -118,6 +119,15 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
         else
         {
             moveDir = new Vector3(Input.GetAxisRaw("Horizontal"), 0, Input.GetAxisRaw("Vertical")).normalized;
+            if (moveDir.magnitude > 0)
+            {
+                runFootsteps.enabled = true;
+            }
+            else
+            {
+                runFootsteps.enabled = false;
+            }
+
         }
 
         moveAmount = Vector3.SmoothDamp(moveAmount, moveDir * (Input.GetKey(KeyCode.LeftShift) ? sprintSpeed : walkSpeed), ref smoothMoveVelocity, smoothTime);

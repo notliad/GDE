@@ -40,7 +40,11 @@ public class ThrowEspada : Espada {
         {
             projectileRb.AddRelativeForce(Vector3.up * -thrustForce, ForceMode.Force);
         }
-
+        //Velocidade da espada
+        //if (projectileRb != null)
+        //{
+        //    Debug.Log(projectileRb.velocity.magnitude);
+        //}
     }
     public override void Use()
     {
@@ -65,17 +69,16 @@ public class ThrowEspada : Espada {
     {
         if (PV.IsMine)
         {
+            Transform cam = FindFirstObjectByType<Camera>().transform;
 
-        Transform cam = FindFirstObjectByType<Camera>().transform;
+            GameObject projectilePhoton = PhotonNetwork.Instantiate(objectToThrow.name, attackPoint.position, cam.transform.rotation);
+            projectileRb = projectilePhoton.GetComponent<Rigidbody>();
 
-        GameObject projectilePhoton = PhotonNetwork.Instantiate(objectToThrow.name, attackPoint.position, cam.transform.rotation);
-        projectileRb = projectilePhoton.GetComponent<Rigidbody>();
+            Vector3 forceToAdd = cam.transform.forward * throwForce + transform.up * throwUpwardForce;
+            Vector3 torque = projectilePhoton.transform.right * rotationThrow;
 
-        Vector3 forceToAdd = cam.transform.forward * throwForce + transform.up * throwUpwardForce;
-        Vector3 torque = projectilePhoton.transform.right * rotationThrow;
-
-        projectileRb.AddForce(forceToAdd, ForceMode.Impulse);
-        projectileRb.AddTorque(torque);
+            projectileRb.AddForce(forceToAdd, ForceMode.Impulse);
+            projectileRb.AddTorque(torque);
         }
 
     }
