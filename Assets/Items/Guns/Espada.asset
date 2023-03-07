@@ -13,3 +13,4 @@ MonoBehaviour:
   m_Name: Espada
   m_EditorClassIdentifier: 
   itemName: Espada
+  damage: 10

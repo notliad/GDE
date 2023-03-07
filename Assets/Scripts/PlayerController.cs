@@ -1,7 +1,5 @@
 using Photon.Pun;
 using Photon.Realtime;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using Hashtable = ExitGames.Client.Photon.Hashtable;
@@ -14,6 +12,12 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
     [SerializeField] float mouseSensitivity, sprintSpeed, walkSpeed, jumpForce, smoothTime;
     [SerializeField] Animator animator;
     [SerializeField] AudioSource runFootsteps;
+    [SerializeField] Collider headCollider;
+    [SerializeField] Collider chestCollider;
+    [SerializeField] Collider leftFootCollider;
+    [SerializeField] Collider rightFootCollider;
+
+
     [SerializeField] Item[] items;
 
     int itemIndex;
@@ -30,6 +34,8 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
 
     const float maxHealth = 100f;
     float currentHealth = maxHealth;
+
+    private float startTime;
 
     PlayerManager playerManager;
 
@@ -60,9 +66,9 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
             }
         }
 
-        if(Input.GetAxisRaw("Mouse ScrollWheel") > 0f)
+        if (Input.GetAxisRaw("Mouse ScrollWheel") > 0f)
         {
-            if(itemIndex >= items.Length - 1)
+            if (itemIndex >= items.Length - 1)
             {
                 EquipItem(0);
             }
@@ -71,11 +77,11 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
                 EquipItem(itemIndex + 1);
             }
         }
-        else if(Input.GetAxisRaw("Mouse ScrollWheel") < 0f)
+        else if (Input.GetAxisRaw("Mouse ScrollWheel") < 0f)
         {
-            if (itemIndex <=0)
+            if (itemIndex <= 0)
             {
-                EquipItem(items.Length -1);
+                EquipItem(items.Length - 1);
             }
             else
             {
@@ -85,10 +91,40 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
 
         if (Input.GetMouseButtonDown(0))
         {
-            items[itemIndex].Use();
+            startTime = Time.time;
+        }
+        if (Input.GetMouseButtonUp(0))
+        {
+            float endTime = Time.time;
+            if (endTime > startTime)
+            {
+                if (endTime - startTime < 1)
+                {
+                    items[itemIndex].Use(1);
+                }
+                else
+                {
+                    if (endTime - startTime > 4)
+                    {
+                        items[itemIndex].Use(4);
+                    }
+                    else
+                    {
+                        items[itemIndex].Use(endTime - startTime);
+                    }
+
+                }
+            }
         }
 
-        if(transform.position.y < -10f)
+
+
+        if (Input.GetMouseButtonDown(1))
+        {
+            items[itemIndex].LetGo();
+        }
+
+        if (transform.position.y < -10f)
         {
             Die();
         }
@@ -172,7 +208,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
 
         previousItemIndex = itemIndex;
 
-        if(PV.IsMine)
+        if (PV.IsMine)
         {
             Hashtable hash = new Hashtable();
             hash.Add("itemIndex", itemIndex);
@@ -187,7 +223,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
 
     public override void OnPlayerPropertiesUpdate(Player targetPlayer, Hashtable changedProps)
     {
-        if(!PV.IsMine && targetPlayer == PV.Owner)
+        if (!PV.IsMine && targetPlayer == PV.Owner)
         {
             EquipItem((int)changedProps["itemIndex"]);
         }
@@ -200,9 +236,28 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
         rb.MovePosition(rb.position + transform.TransformDirection(moveAmount) * Time.fixedDeltaTime);
     }
 
-    public void TakeDamage(float damage)
+    public void TakeDamage(float damage, Collider collider)
     {
-        PV.RPC("RPC_TakeDamage", RpcTarget.All, damage);
+        if (collider == headCollider)
+        {
+            PV.RPC("RPC_TakeDamage", RpcTarget.All, damage * 2f);
+
+        }
+        if (collider == chestCollider)
+        {
+            PV.RPC("RPC_TakeDamage", RpcTarget.All, damage);
+
+        }
+        if (collider == leftFootCollider)
+        {
+            PV.RPC("RPC_TakeDamage", RpcTarget.All, damage * 0.5f);
+
+        }
+        if (collider == rightFootCollider)
+        {
+            PV.RPC("RPC_TakeDamage", RpcTarget.All, damage * 0.5f);
+
+        }
     }
 
     [PunRPC]
@@ -215,7 +270,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
 
         healthbarImage.fillAmount = currentHealth / maxHealth;
 
-        if(currentHealth <= 0)
+        if (currentHealth <= 0)
         {
             Die();
         }
@@ -237,7 +292,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
         animator.SetBool("Back", Input.GetAxisRaw("Vertical") < 0);
         animator.SetBool("StrafeRight", Input.GetAxisRaw("Horizontal") > 0);
         animator.SetBool("Sprint", Input.GetKey(KeyCode.LeftShift));
-        
+
     }
 
 }
