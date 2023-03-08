@@ -37,6 +37,20 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
         playerManager = PhotonView.Find((int)PV.InstantiationData[0]).GetComponent<PlayerManager>();
         playerMechanics = new PlayerMechanics(this, cameraHolder, animator, runFootsteps);
     }
+    void Start()
+    {
+        if (PV.IsMine)
+        {
+            EquipItem(0);
+            playerMechanics = new PlayerMechanics(this, cameraHolder, animator, runFootsteps);
+        }
+        else
+        {
+            Destroy(GetComponentInChildren<Camera>().gameObject);
+            Destroy(rb);
+            Destroy(ui);
+        }
+    }
 
     void Update()
     {
@@ -89,20 +103,12 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
         }
     }
 
-    void Start()
+    void FixedUpdate()
     {
-        if (PV.IsMine)
-        {
-            EquipItem(0);
-        }
-        else
-        {
-            Destroy(GetComponentInChildren<Camera>().gameObject);
-            Destroy(rb);
-            Destroy(ui);
-        }
+        if (!PV.IsMine)
+            return;
+        playerMechanics.OnFixedUpdate();
     }
-
 
     void EquipItem(int _index)
     {
@@ -136,16 +142,14 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
         }
     }
 
-    void FixedUpdate()
-    {
-        if (!PV.IsMine)
-            return;
-        playerMechanics.OnFixedUpdate();
-    }
-
     public void TakeDamage(float damage)
     {
         PV.RPC("RPC_TakeDamage", RpcTarget.All, damage);
+    }
+    public void SetGroundedState(bool state)
+    {
+        Debug.Log("playerMechanics:" + (playerMechanics?.ToString() ?? "null"));
+        playerMechanics.SetGroundedState(state);
     }
 
     [PunRPC]

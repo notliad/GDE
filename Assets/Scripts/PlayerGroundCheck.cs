@@ -17,7 +17,7 @@ public class PlayerGroundCheck : MonoBehaviour
         if (other.gameObject == playerController.gameObject)
             return;
 
-        playerController.playerMechanics.SetGroundedState(true);
+        playerController.SetGroundedState(true);
     }
 
     void OnTriggerExit(Collider other)
@@ -25,7 +25,7 @@ public class PlayerGroundCheck : MonoBehaviour
         if (other.gameObject == playerController.gameObject)
             return;
 
-        playerController.playerMechanics.SetGroundedState(false);
+        playerController.SetGroundedState(false);
 
     }
 
@@ -33,7 +33,7 @@ public class PlayerGroundCheck : MonoBehaviour
     {
         if (other.gameObject == playerController.gameObject)
             return;
-        playerController.playerMechanics.SetGroundedState(true);
+        playerController.SetGroundedState(true);
 
     }
 
@@ -42,7 +42,7 @@ public class PlayerGroundCheck : MonoBehaviour
         if (collision.gameObject == playerController.gameObject)
             return;
 
-        playerController.playerMechanics.SetGroundedState(true);
+        playerController.SetGroundedState(true);
     }
 
     void OnCollisionExit(Collision collision)
@@ -50,7 +50,7 @@ public class PlayerGroundCheck : MonoBehaviour
         if (collision.gameObject == playerController.gameObject)
             return;
 
-        playerController.playerMechanics.SetGroundedState(false);
+        playerController.SetGroundedState(false);
     }
 
     void OnCollisionStay(Collision collision)
@@ -58,6 +58,6 @@ public class PlayerGroundCheck : MonoBehaviour
         if (collision.gameObject == playerController.gameObject)
             return;
 
-        playerController.playerMechanics.SetGroundedState(true);
+        playerController.SetGroundedState(true);
     }
 }
