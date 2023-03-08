@@ -1,3 +1,4 @@
+using Assets.Scripts.Player;
 using Photon.Pun;
 using Photon.Realtime;
 using UnityEngine;
@@ -22,12 +23,8 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
 
     int itemIndex;
     int previousItemIndex = -1;
-
-    private float verticalLookRotation;
     bool grounded;
 
-    Vector3 smoothMoveVelocity;
-    Vector3 moveAmount;
 
     Rigidbody rb;
     PhotonView PV;
@@ -38,23 +35,36 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
     private float startTime;
 
     PlayerManager playerManager;
+    public PlayerMechanics playerMechanics;
 
     void Awake()
     {
         rb = GetComponent<Rigidbody>();
         PV = GetComponent<PhotonView>();
-
         playerManager = PhotonView.Find((int)PV.InstantiationData[0]).GetComponent<PlayerManager>();
+        playerMechanics = new PlayerMechanics(this, cameraHolder, animator, runFootsteps);
+    }
+    void Start()
+    {
+        if (PV.IsMine)
+        {
+            EquipItem(0);
+            playerMechanics = new PlayerMechanics(this, cameraHolder, animator, runFootsteps);
+        }
+        else
+        {
+            Destroy(GetComponentInChildren<Camera>().gameObject);
+            Destroy(rb);
+            Destroy(ui);
+        }
     }
 
     void Update()
     {
         if (!PV.IsMine)
             return;
-        Look();
-        Move();
-        Jump();
-        Animate();
+
+        playerMechanics.OnUpdate();
 
 
         for (int i = 0; i < items.Length; i++)
@@ -130,66 +140,11 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
         }
     }
 
-    void Start()
+    void FixedUpdate()
     {
-        if (PV.IsMine)
-        {
-            EquipItem(0);
-        }
-        else
-        {
-            Destroy(GetComponentInChildren<Camera>().gameObject);
-            Destroy(rb);
-            Destroy(ui);
-        }
-    }
-
-    void Move()
-    {
-        Vector3 moveDir;
-        if (Input.GetKey(KeyCode.LeftShift))
-        {
-            moveDir = new Vector3(0, 0, Input.GetAxisRaw("Vertical")).normalized;
-
-        }
-        else
-        {
-            moveDir = new Vector3(Input.GetAxisRaw("Horizontal"), 0, Input.GetAxisRaw("Vertical")).normalized;
-            if (moveDir.magnitude > 0)
-            {
-                runFootsteps.enabled = true;
-            }
-            else
-            {
-                runFootsteps.enabled = false;
-            }
-
-        }
-
-        moveAmount = Vector3.SmoothDamp(moveAmount, moveDir * (Input.GetKey(KeyCode.LeftShift) ? sprintSpeed : walkSpeed), ref smoothMoveVelocity, smoothTime);
-    }
-
-    void Jump()
-    {
-        if (Input.GetKeyDown(KeyCode.Space) && grounded)
-        {
-            rb.AddForce(transform.up * jumpForce);
-            animator.SetBool("Jump", true);
-        }
-        if (!grounded)
-        {
-            animator.SetBool("Jump", false);
-        }
-    }
-
-    void Look()
-    {
-        transform.Rotate(Vector3.up * Input.GetAxisRaw("Mouse X") * mouseSensitivity);
-
-        verticalLookRotation += Input.GetAxisRaw("Mouse Y") * mouseSensitivity;
-        verticalLookRotation = Mathf.Clamp(verticalLookRotation, -90f, 90f);
-
-        cameraHolder.transform.localEulerAngles = Vector3.left * verticalLookRotation;
+        if (!PV.IsMine)
+            return;
+        playerMechanics.OnFixedUpdate();
     }
 
     void EquipItem(int _index)
@@ -216,11 +171,6 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
         }
     }
 
-    public void SetGroundedState(bool _grounded)
-    {
-        grounded = _grounded;
-    }
-
     public override void OnPlayerPropertiesUpdate(Player targetPlayer, Hashtable changedProps)
     {
         if (!PV.IsMine && targetPlayer == PV.Owner)
@@ -229,12 +179,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
         }
     }
 
-    void FixedUpdate()
-    {
-        if (!PV.IsMine)
-            return;
-        rb.MovePosition(rb.position + transform.TransformDirection(moveAmount) * Time.fixedDeltaTime);
-    }
+  
 
     public void TakeDamage(float damage, Collider collider)
     {
@@ -258,6 +203,12 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
             PV.RPC("RPC_TakeDamage", RpcTarget.All, damage * 0.5f);
 
         }
+        }
+        public void SetGroundedState(bool state)
+    {
+        //Debug.Log("playerMechanics:" + (playerMechanics?.ToString() ?? "null"));
+        if (playerMechanics != null)
+            playerMechanics.SetGroundedState(state);
     }
 
     [PunRPC]
@@ -280,19 +231,4 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
     {
         playerManager.Die();
     }
-
-    void Animate()
-    {
-        animator.SetBool("RunLeft", Input.GetAxisRaw("Vertical") > 0 && Input.GetAxisRaw("Horizontal") < 0);
-        animator.SetBool("RunRight", Input.GetAxisRaw("Vertical") > 0 && Input.GetAxisRaw("Horizontal") > 0);
-        animator.SetBool("BackLeft", Input.GetAxisRaw("Vertical") < 0 && Input.GetAxisRaw("Horizontal") < 0);
-        animator.SetBool("BackRight", Input.GetAxisRaw("Vertical") < 0 && Input.GetAxisRaw("Horizontal") > 0);
-        animator.SetBool("StrafeLeft", Input.GetAxisRaw("Horizontal") < 0);
-        animator.SetBool("RunForward", Input.GetAxisRaw("Vertical") > 0);
-        animator.SetBool("Back", Input.GetAxisRaw("Vertical") < 0);
-        animator.SetBool("StrafeRight", Input.GetAxisRaw("Horizontal") > 0);
-        animator.SetBool("Sprint", Input.GetKey(KeyCode.LeftShift));
-
-    }
-
 }

@@ -33,7 +33,6 @@ public class PlayerGroundCheck : MonoBehaviour
     {
         if (other.gameObject == playerController.gameObject)
             return;
-
         playerController.SetGroundedState(true);
 
     }
