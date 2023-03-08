@@ -1,8 +1,6 @@
 using Assets.Scripts.Player;
 using Photon.Pun;
 using Photon.Realtime;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using Hashtable = ExitGames.Client.Photon.Hashtable;
@@ -15,6 +13,12 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
     [SerializeField] float mouseSensitivity, sprintSpeed, walkSpeed, jumpForce, smoothTime;
     [SerializeField] Animator animator;
     [SerializeField] AudioSource runFootsteps;
+    [SerializeField] Collider headCollider;
+    [SerializeField] Collider chestCollider;
+    [SerializeField] Collider leftFootCollider;
+    [SerializeField] Collider rightFootCollider;
+
+
     [SerializeField] Item[] items;
 
     int itemIndex;
@@ -27,6 +31,8 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
 
     const float maxHealth = 100f;
     float currentHealth = maxHealth;
+
+    private float startTime;
 
     PlayerManager playerManager;
     public PlayerMechanics playerMechanics;
@@ -95,7 +101,37 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
 
         if (Input.GetMouseButtonDown(0))
         {
-            items[itemIndex].Use();
+            startTime = Time.time;
+        }
+        if (Input.GetMouseButtonUp(0))
+        {
+            float endTime = Time.time;
+            if (endTime > startTime)
+            {
+                if (endTime - startTime < 1)
+                {
+                    items[itemIndex].Use(1);
+                }
+                else
+                {
+                    if (endTime - startTime > 4)
+                    {
+                        items[itemIndex].Use(4);
+                    }
+                    else
+                    {
+                        items[itemIndex].Use(endTime - startTime);
+                    }
+
+                }
+            }
+        }
+
+
+
+        if (Input.GetMouseButtonDown(1))
+        {
+            items[itemIndex].LetGo();
         }
 
         if (transform.position.y < -10f)
@@ -143,11 +179,32 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
         }
     }
 
-    public void TakeDamage(float damage)
+  
+
+    public void TakeDamage(float damage, Collider collider)
     {
-        PV.RPC("RPC_TakeDamage", RpcTarget.All, damage);
-    }
-    public void SetGroundedState(bool state)
+        if (collider == headCollider)
+        {
+            PV.RPC("RPC_TakeDamage", RpcTarget.All, damage * 2f);
+
+        }
+        if (collider == chestCollider)
+        {
+            PV.RPC("RPC_TakeDamage", RpcTarget.All, damage);
+
+        }
+        if (collider == leftFootCollider)
+        {
+            PV.RPC("RPC_TakeDamage", RpcTarget.All, damage * 0.5f);
+
+        }
+        if (collider == rightFootCollider)
+        {
+            PV.RPC("RPC_TakeDamage", RpcTarget.All, damage * 0.5f);
+
+        }
+        }
+        public void SetGroundedState(bool state)
     {
         //Debug.Log("playerMechanics:" + (playerMechanics?.ToString() ?? "null"));
         if (playerMechanics != null)
