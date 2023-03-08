@@ -30,6 +30,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
 
     PlayerManager playerManager;
     public PlayerMechanics playerMechanics;
+
     void Awake()
     {
         rb = GetComponent<Rigidbody>();
@@ -69,9 +70,9 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
             }
         }
 
-        if(Input.GetAxisRaw("Mouse ScrollWheel") > 0f)
+        if (Input.GetAxisRaw("Mouse ScrollWheel") > 0f)
         {
-            if(itemIndex >= items.Length - 1)
+            if (itemIndex >= items.Length - 1)
             {
                 EquipItem(0);
             }
@@ -80,11 +81,11 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
                 EquipItem(itemIndex + 1);
             }
         }
-        else if(Input.GetAxisRaw("Mouse ScrollWheel") < 0f)
+        else if (Input.GetAxisRaw("Mouse ScrollWheel") < 0f)
         {
-            if (itemIndex <=0)
+            if (itemIndex <= 0)
             {
-                EquipItem(items.Length -1);
+                EquipItem(items.Length - 1);
             }
             else
             {
@@ -97,7 +98,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
             items[itemIndex].Use();
         }
 
-        if(transform.position.y < -10f)
+        if (transform.position.y < -10f)
         {
             Die();
         }
@@ -126,7 +127,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
 
         previousItemIndex = itemIndex;
 
-        if(PV.IsMine)
+        if (PV.IsMine)
         {
             Hashtable hash = new Hashtable();
             hash.Add("itemIndex", itemIndex);
@@ -136,7 +137,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
 
     public override void OnPlayerPropertiesUpdate(Player targetPlayer, Hashtable changedProps)
     {
-        if(!PV.IsMine && targetPlayer == PV.Owner)
+        if (!PV.IsMine && targetPlayer == PV.Owner)
         {
             EquipItem((int)changedProps["itemIndex"]);
         }
@@ -148,8 +149,9 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
     }
     public void SetGroundedState(bool state)
     {
-        Debug.Log("playerMechanics:" + (playerMechanics?.ToString() ?? "null"));
-        playerMechanics.SetGroundedState(state);
+        //Debug.Log("playerMechanics:" + (playerMechanics?.ToString() ?? "null"));
+        if (playerMechanics != null)
+            playerMechanics.SetGroundedState(state);
     }
 
     [PunRPC]
@@ -162,7 +164,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
 
         healthbarImage.fillAmount = currentHealth / maxHealth;
 
-        if(currentHealth <= 0)
+        if (currentHealth <= 0)
         {
             Die();
         }

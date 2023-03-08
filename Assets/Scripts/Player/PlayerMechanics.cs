@@ -42,7 +42,6 @@ namespace Assets.Scripts.Player
 
         public void SetGroundedState(bool _grounded)
         {
-            Debug.Log("Grounded:" + _grounded);
             grounded = _grounded;
         }
 
@@ -87,9 +86,9 @@ namespace Assets.Scripts.Player
 
         void Look()
         {
-            player.transform.Rotate(Vector3.up * Input.GetAxisRaw("Mouse X") * mouseSensitivity);
+            player.transform.Rotate(Vector3.up * Input.GetAxisRaw("Mouse X") * config.MOUSE_SENSIVITY);
 
-            verticalLookRotation += Input.GetAxisRaw("Mouse Y") * mouseSensitivity;
+            verticalLookRotation += Input.GetAxisRaw("Mouse Y") * config.MOUSE_SENSIVITY;
             verticalLookRotation = Mathf.Clamp(verticalLookRotation, -90f, 90f);
 
             camera.transform.localEulerAngles = Vector3.left * verticalLookRotation;
