@@ -14,7 +14,6 @@ namespace Assets.Scripts.Player
         private Config config;
 
         private float verticalLookRotation;
-        float mouseSensitivity;
         Vector3 smoothMoveVelocity;
         Vector3 moveAmount;
         bool grounded;
@@ -75,7 +74,7 @@ namespace Assets.Scripts.Player
         {
             if (Input.GetKeyDown(KeyCode.Space) && grounded)
             {
-                rb.AddForce(player.transform.up * 2);
+                rb.AddForce(player.transform.up * config.JUMP_FORCE);
                 PlayerAnimation.SetJump(true);
             }
             if (!grounded)
