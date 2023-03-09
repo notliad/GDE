@@ -3,6 +3,7 @@ using Photon.Realtime;
 using UnityEngine;
 using UnityEngine.UI;
 using Hashtable = ExitGames.Client.Photon.Hashtable;
+using Assets.Scripts.Player;
 
 public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
 {
@@ -43,6 +44,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
 
 
     PlayerManager playerManager;
+    public PlayerMechanics playerMechanics;
 
     void Awake()
     {
@@ -50,17 +52,15 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
         PV = GetComponent<PhotonView>();
 
         playerManager = PhotonView.Find((int)PV.InstantiationData[0]).GetComponent<PlayerManager>();
+        playerMechanics = new PlayerMechanics(this, cameraHolder, animator, runFootsteps);
     }
 
     void Update()
     {
         if (!PV.IsMine)
             return;
-        Look();
-        Move();
-        Jump();
-        Animate();
 
+        playerMechanics.OnUpdate();
 
         for (int i = 0; i < items.Length; i++)
         {
@@ -167,123 +167,93 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
             Destroy(ui);
         }
     }
+    void FixedUpdate()
+    {
+        if (!PV.IsMine)
+            return;
+        playerMechanics.OnFixedUpdate();
+    }
 
-        if (Input.GetKeyDown(KeyCode.Escape))
+    void EquipItem(int _index)
+    {
+        if (_index == previousItemIndex)
+            return;
+
+        itemIndex = _index;
+
+        items[itemIndex].gameObject.SetActive(true);
+
+        if (previousItemIndex != -1)
         {
-            pauseMenu.SetActive(!pauseMenu.activeSelf);
-            Cursor.lockState = pauseMenu.activeSelf? CursorLockMode.None : CursorLockMode.Locked;
-    Cursor.visible = pauseMenu.activeSelf;
+            items[previousItemIndex].gameObject.SetActive(false);
+        }
+
+        previousItemIndex = itemIndex;
+
+        if (PV.IsMine)
+        {
+            Hashtable hash = new Hashtable();
+            hash.Add("itemIndex", itemIndex);
+            PhotonNetwork.LocalPlayer.SetCustomProperties(hash);
         }
     }
 
-    void FixedUpdate()
-{
-    if (!PV.IsMine)
-        return;
-    playerMechanics.OnFixedUpdate();
-}
-
-void EquipItem(int _index)
-{
-    if (_index == previousItemIndex)
-        return;
-
-    itemIndex = _index;
-
-    items[itemIndex].gameObject.SetActive(true);
-
-    if (previousItemIndex != -1)
+    public void SetGroundedState(bool _grounded)
     {
-        items[previousItemIndex].gameObject.SetActive(false);
+        grounded = _grounded;
     }
 
-    previousItemIndex = itemIndex;
-
-    if (PV.IsMine)
+    public override void OnPlayerPropertiesUpdate(Player targetPlayer, Hashtable changedProps)
     {
-        Hashtable hash = new Hashtable();
-        hash.Add("itemIndex", itemIndex);
-        PhotonNetwork.LocalPlayer.SetCustomProperties(hash);
+        if (!PV.IsMine && targetPlayer == PV.Owner)
+        {
+            EquipItem((int)changedProps["itemIndex"]);
+        }
     }
-}
 
-public void SetGroundedState(bool _grounded)
-{
-    grounded = _grounded;
-}
-
-public override void OnPlayerPropertiesUpdate(Player targetPlayer, Hashtable changedProps)
-{
-    if (!PV.IsMine && targetPlayer == PV.Owner)
+    public void TakeDamage(float damage, Collider collider)
     {
-        EquipItem((int)changedProps["itemIndex"]);
+        if (collider == headCollider)
+        {
+            PV.RPC("RPC_TakeDamage", RpcTarget.All, damage * 2f);
+
+        }
+        if (collider == chestCollider)
+        {
+            PV.RPC("RPC_TakeDamage", RpcTarget.All, damage);
+
+        }
+        if (collider == leftFootCollider)
+        {
+            PV.RPC("RPC_TakeDamage", RpcTarget.All, damage * 0.5f);
+
+        }
+        if (collider == rightFootCollider)
+        {
+            PV.RPC("RPC_TakeDamage", RpcTarget.All, damage * 0.5f);
+
+        }
     }
-}
 
-void FixedUpdate()
-{
-    if (!PV.IsMine)
-        return;
-    rb.MovePosition(rb.position + transform.TransformDirection(moveAmount) * Time.fixedDeltaTime);
-}
-
-public void TakeDamage(float damage, Collider collider)
-{
-    if (collider == headCollider)
+    [PunRPC]
+    void RPC_TakeDamage(float damage)
     {
-        PV.RPC("RPC_TakeDamage", RpcTarget.All, damage * 2f);
+        if (!PV.IsMine)
+            return;
 
+        currentHealth -= damage;
+
+        healthbarImage.fillAmount = currentHealth / maxHealth;
+
+        if (currentHealth <= 0)
+        {
+            Die();
+        }
     }
-    if (collider == chestCollider)
+
+    void Die()
     {
-        PV.RPC("RPC_TakeDamage", RpcTarget.All, damage);
-
+        playerManager.Die();
     }
-    if (collider == leftFootCollider)
-    {
-        PV.RPC("RPC_TakeDamage", RpcTarget.All, damage * 0.5f);
-
-    }
-    if (collider == rightFootCollider)
-    {
-        PV.RPC("RPC_TakeDamage", RpcTarget.All, damage * 0.5f);
-
-    }
-}
-
-[PunRPC]
-void RPC_TakeDamage(float damage)
-{
-    if (!PV.IsMine)
-        return;
-
-    currentHealth -= damage;
-
-    healthbarImage.fillAmount = currentHealth / maxHealth;
-
-    if (currentHealth <= 0)
-    {
-        Die();
-    }
-}
-
-void Die()
-{
-    playerManager.Die();
-}
-
-void Animate()
-{
-    animator.SetBool("RunLeft", Input.GetAxisRaw("Vertical") > 0 && Input.GetAxisRaw("Horizontal") < 0);
-    animator.SetBool("RunRight", Input.GetAxisRaw("Vertical") > 0 && Input.GetAxisRaw("Horizontal") > 0);
-    animator.SetBool("BackLeft", Input.GetAxisRaw("Vertical") < 0 && Input.GetAxisRaw("Horizontal") < 0);
-    animator.SetBool("BackRight", Input.GetAxisRaw("Vertical") < 0 && Input.GetAxisRaw("Horizontal") > 0);
-    animator.SetBool("StrafeLeft", Input.GetAxisRaw("Horizontal") < 0);
-    animator.SetBool("RunForward", Input.GetAxisRaw("Vertical") > 0);
-    animator.SetBool("Back", Input.GetAxisRaw("Vertical") < 0);
-    animator.SetBool("StrafeRight", Input.GetAxisRaw("Horizontal") > 0);
-    animator.SetBool("Sprint", Input.GetKey(KeyCode.LeftShift));
-
-}
 
 }
