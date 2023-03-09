@@ -1,6 +1,3 @@
-using Photon.Pun;
-using System.IO;
-
 public class PlayerManager : MonoBehaviour
 {
     PhotonView PV;
