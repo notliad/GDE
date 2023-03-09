@@ -4,6 +4,7 @@ using Photon.Realtime;
 using UnityEngine;
 using UnityEngine.UI;
 using Hashtable = ExitGames.Client.Photon.Hashtable;
+using Assets.Scripts.Player;
 
 public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
 {
@@ -48,20 +49,6 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
         PV = GetComponent<PhotonView>();
         playerManager = PhotonView.Find((int)PV.InstantiationData[0]).GetComponent<PlayerManager>();
         playerMechanics = new PlayerMechanics(this, cameraHolder, animator, runFootsteps);
-    }
-    void Start()
-    {
-        if (PV.IsMine)
-        {
-            EquipItem(0);
-            playerMechanics = new PlayerMechanics(this, cameraHolder, animator, runFootsteps);
-        }
-        else
-        {
-            Destroy(GetComponentInChildren<Camera>().gameObject);
-            Destroy(rb);
-            Destroy(ui);
-        }
     }
 
     void Update()
@@ -162,6 +149,21 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
         }
     }
 
+    void Start()
+    {
+        if (PV.IsMine)
+        {
+            EquipItem(0);
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+        }
+        else
+        {
+            Destroy(GetComponentInChildren<Camera>().gameObject);
+            Destroy(rb);
+            Destroy(ui);
+        }
+    }
     void FixedUpdate()
     {
         if (!PV.IsMine)
@@ -174,16 +176,16 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
         if (_index == previousItemIndex)
             return;
 
-    itemIndex = _index;
+        itemIndex = _index;
 
-    items[itemIndex].gameObject.SetActive(true);
+        items[itemIndex].gameObject.SetActive(true);
 
-    if (previousItemIndex != -1)
-    {
-        items[previousItemIndex].gameObject.SetActive(false);
-    }
+        if (previousItemIndex != -1)
+        {
+            items[previousItemIndex].gameObject.SetActive(false);
+        }
 
-    previousItemIndex = itemIndex;
+        previousItemIndex = itemIndex;
 
         if (PV.IsMine)
         {
@@ -193,36 +195,34 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
         }
     }
 
-public override void OnPlayerPropertiesUpdate(Player targetPlayer, Hashtable changedProps)
-{
-    if (!PV.IsMine && targetPlayer == PV.Owner)
+    public override void OnPlayerPropertiesUpdate(Player targetPlayer, Hashtable changedProps)
     {
-        EquipItem((int)changedProps["itemIndex"]);
+        if (!PV.IsMine && targetPlayer == PV.Owner)
+        {
+            EquipItem((int)changedProps["itemIndex"]);
+        }
     }
-}
 
-  
-
-public void TakeDamage(float damage, Collider collider)
-{
-    if (collider == headCollider)
+    public void TakeDamage(float damage, Collider collider)
     {
-        PV.RPC("RPC_TakeDamage", RpcTarget.All, damage * 2f);
+        if (collider == headCollider)
+        {
+            PV.RPC("RPC_TakeDamage", RpcTarget.All, damage * 2f);
 
-    }
-    if (collider == chestCollider)
-    {
-        PV.RPC("RPC_TakeDamage", RpcTarget.All, damage);
+        }
+        if (collider == chestCollider)
+        {
+            PV.RPC("RPC_TakeDamage", RpcTarget.All, damage);
 
-    }
-    if (collider == leftFootCollider)
-    {
-        PV.RPC("RPC_TakeDamage", RpcTarget.All, damage * 0.5f);
+        }
+        if (collider == leftFootCollider)
+        {
+            PV.RPC("RPC_TakeDamage", RpcTarget.All, damage * 0.5f);
 
-    }
-    if (collider == rightFootCollider)
-    {
-        PV.RPC("RPC_TakeDamage", RpcTarget.All, damage * 0.5f);
+        }
+        if (collider == rightFootCollider)
+        {
+            PV.RPC("RPC_TakeDamage", RpcTarget.All, damage * 0.5f);
 
         }
         }
@@ -233,21 +233,21 @@ public void TakeDamage(float damage, Collider collider)
             playerMechanics.SetGroundedState(state);
     }
 
-[PunRPC]
-void RPC_TakeDamage(float damage)
-{
-    if (!PV.IsMine)
-        return;
-
-    currentHealth -= damage;
-
-    healthbarImage.fillAmount = currentHealth / maxHealth;
-
-    if (currentHealth <= 0)
+    [PunRPC]
+    void RPC_TakeDamage(float damage)
     {
-        Die();
+        if (!PV.IsMine)
+            return;
+
+        currentHealth -= damage;
+
+        healthbarImage.fillAmount = currentHealth / maxHealth;
+
+        if (currentHealth <= 0)
+        {
+            Die();
+        }
     }
-}
 
     void Die()
     {

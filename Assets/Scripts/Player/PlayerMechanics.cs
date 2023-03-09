@@ -17,7 +17,7 @@ namespace Assets.Scripts.Player
         Vector3 smoothMoveVelocity;
         Vector3 moveAmount;
         bool grounded;
-        public PlayerMechanics(MonoBehaviour _player, GameObject _camera,  Animator animatior, AudioSource runFootsteps)
+        public PlayerMechanics(MonoBehaviour _player, GameObject _camera, Animator animatior, AudioSource runFootsteps)
         {
             config = GameObject.FindGameObjectsWithTag(Config.ConfigTag).First().GetComponent<Config>();
             rb = _player.GetComponent<Rigidbody>();
@@ -66,7 +66,7 @@ namespace Assets.Scripts.Player
 
             }
 
-            moveAmount = Vector3.SmoothDamp(moveAmount, moveDir * (Input.GetKey(KeyCode.LeftShift) ? config.sprintspeed : config.walkspeed), 
+            moveAmount = Vector3.SmoothDamp(moveAmount, moveDir * (Input.GetKey(KeyCode.LeftShift) ? config.sprintspeed : config.walkspeed),
                 ref smoothMoveVelocity, config.SMOOTH_TIME);
         }
 
