@@ -7,10 +7,13 @@ using Hashtable = ExitGames.Client.Photon.Hashtable;
 public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
 {
     [SerializeField] Image healthbarImage;
+    [SerializeField] Image throwPower;
     [SerializeField] GameObject ui;
     [SerializeField] GameObject cameraHolder;
+    [SerializeField] GameObject pauseMenu;
     [SerializeField] float mouseSensitivity, sprintSpeed, walkSpeed, jumpForce, smoothTime;
     [SerializeField] Animator animator;
+
     [SerializeField] AudioSource runFootsteps;
     [SerializeField] Collider headCollider;
     [SerializeField] Collider chestCollider;
@@ -36,6 +39,8 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
     float currentHealth = maxHealth;
 
     private float startTime;
+    private float maxHoldTime = 2;
+
 
     PlayerManager playerManager;
 
@@ -88,45 +93,62 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
                 EquipItem(itemIndex - 1);
             }
         }
-
-        if (Input.GetMouseButtonDown(0))
+        if (!pauseMenu.activeSelf)
         {
-            startTime = Time.time;
-        }
-        if (Input.GetMouseButtonUp(0))
-        {
-            float endTime = Time.time;
-            if (endTime > startTime)
+            if (Input.GetMouseButtonDown(0))
             {
-                if (endTime - startTime < 1)
+                startTime = Time.time;
+            }
+
+            if (Input.GetMouseButton(0))
+            {
+                float holdTime = Time.time - startTime;
+                throwPower.fillAmount = holdTime / maxHoldTime; // set the fill amount based on how long the button has been held down
+            }
+            if (Input.GetMouseButtonUp(0))
+            {
+                throwPower.fillAmount = 0;
+                float endTime = Time.time;
+                if (endTime > startTime)
                 {
-                    items[itemIndex].Use(1);
-                }
-                else
-                {
-                    if (endTime - startTime > 4)
+                    if (endTime - startTime < 1)
                     {
-                        items[itemIndex].Use(4);
+                        items[itemIndex].Use(endTime - startTime + 1f);
                     }
                     else
                     {
-                        items[itemIndex].Use(endTime - startTime);
-                    }
+                        if (endTime - startTime > maxHoldTime)
+                        {
+                            items[itemIndex].Use(maxHoldTime + 1f);
+                        }
+                        else
+                        {
+                            items[itemIndex].Use(endTime - startTime + 1f);
+                        }
 
+                    }
                 }
+
+            }
+
+            if (Input.GetMouseButtonDown(1))
+            {
+                items[itemIndex].LetGo();
             }
         }
 
 
-
-        if (Input.GetMouseButtonDown(1))
-        {
-            items[itemIndex].LetGo();
-        }
-
         if (transform.position.y < -10f)
         {
             Die();
+        }
+
+
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            pauseMenu.SetActive(!pauseMenu.activeSelf);
+            Cursor.lockState = pauseMenu.activeSelf ? CursorLockMode.None : CursorLockMode.Locked;
+            Cursor.visible = pauseMenu.activeSelf;
         }
     }
 
@@ -135,6 +157,8 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
         if (PV.IsMine)
         {
             EquipItem(0);
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
         }
         else
         {
@@ -184,12 +208,15 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
 
     void Look()
     {
-        transform.Rotate(Vector3.up * Input.GetAxisRaw("Mouse X") * mouseSensitivity);
+        if (!pauseMenu.activeSelf)
+        {
+            transform.Rotate(Vector3.up * Input.GetAxisRaw("Mouse X") * mouseSensitivity);
 
-        verticalLookRotation += Input.GetAxisRaw("Mouse Y") * mouseSensitivity;
-        verticalLookRotation = Mathf.Clamp(verticalLookRotation, -90f, 90f);
+            verticalLookRotation += Input.GetAxisRaw("Mouse Y") * mouseSensitivity;
+            verticalLookRotation = Mathf.Clamp(verticalLookRotation, -90f, 90f);
 
-        cameraHolder.transform.localEulerAngles = Vector3.left * verticalLookRotation;
+            cameraHolder.transform.localEulerAngles = Vector3.left * verticalLookRotation;
+        }
     }
 
     void EquipItem(int _index)

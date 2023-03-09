@@ -42,11 +42,6 @@ public class ThrowEspada : Espada
         {
             projectileRb.AddRelativeForce(Vector3.up * -thrustForce, ForceMode.Force);
         }
-        //Velocidade da espada
-        //if (projectileRb != null)
-        //{
-        //    Debug.Log(projectileRb.velocity.magnitude);
-        //}
     }
 
     public override void LetGo()
@@ -78,8 +73,6 @@ public class ThrowEspada : Espada
     void OnCollisionEnter(Collision collision)
     {
         collision.gameObject.GetComponent<IDamageable>()?.TakeDamage(collision.relativeVelocity.magnitude, collision.collider);
-
-        // Perform other actions as needed
     }
 
     private void ResetThrow()
