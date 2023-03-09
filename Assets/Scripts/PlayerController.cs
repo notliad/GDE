@@ -8,10 +8,13 @@ using Hashtable = ExitGames.Client.Photon.Hashtable;
 public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
 {
     [SerializeField] Image healthbarImage;
+    [SerializeField] Image throwPower;
     [SerializeField] GameObject ui;
     [SerializeField] GameObject cameraHolder;
+    [SerializeField] GameObject pauseMenu;
     [SerializeField] float mouseSensitivity, sprintSpeed, walkSpeed, jumpForce, smoothTime;
     [SerializeField] Animator animator;
+
     [SerializeField] AudioSource runFootsteps;
     [SerializeField] Collider headCollider;
     [SerializeField] Collider chestCollider;
@@ -33,6 +36,8 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
     float currentHealth = maxHealth;
 
     private float startTime;
+    private float maxHoldTime = 2;
+
 
     PlayerManager playerManager;
     public PlayerMechanics playerMechanics;
@@ -98,45 +103,62 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
                 EquipItem(itemIndex - 1);
             }
         }
-
-        if (Input.GetMouseButtonDown(0))
+        if (!pauseMenu.activeSelf)
         {
-            startTime = Time.time;
-        }
-        if (Input.GetMouseButtonUp(0))
-        {
-            float endTime = Time.time;
-            if (endTime > startTime)
+            if (Input.GetMouseButtonDown(0))
             {
-                if (endTime - startTime < 1)
+                startTime = Time.time;
+            }
+
+            if (Input.GetMouseButton(0))
+            {
+                float holdTime = Time.time - startTime;
+                throwPower.fillAmount = holdTime / maxHoldTime; // set the fill amount based on how long the button has been held down
+            }
+            if (Input.GetMouseButtonUp(0))
+            {
+                throwPower.fillAmount = 0;
+                float endTime = Time.time;
+                if (endTime > startTime)
                 {
-                    items[itemIndex].Use(1);
-                }
-                else
-                {
-                    if (endTime - startTime > 4)
+                    if (endTime - startTime < 1)
                     {
-                        items[itemIndex].Use(4);
+                        items[itemIndex].Use(endTime - startTime + 1f);
                     }
                     else
                     {
-                        items[itemIndex].Use(endTime - startTime);
-                    }
+                        if (endTime - startTime > maxHoldTime)
+                        {
+                            items[itemIndex].Use(maxHoldTime + 1f);
+                        }
+                        else
+                        {
+                            items[itemIndex].Use(endTime - startTime + 1f);
+                        }
 
+                    }
                 }
+
+            }
+
+            if (Input.GetMouseButtonDown(1))
+            {
+                items[itemIndex].LetGo();
             }
         }
 
 
-
-        if (Input.GetMouseButtonDown(1))
-        {
-            items[itemIndex].LetGo();
-        }
-
         if (transform.position.y < -10f)
         {
             Die();
+        }
+
+
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            pauseMenu.SetActive(!pauseMenu.activeSelf);
+            Cursor.lockState = pauseMenu.activeSelf ? CursorLockMode.None : CursorLockMode.Locked;
+            Cursor.visible = pauseMenu.activeSelf;
         }
     }
 
@@ -152,16 +174,16 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
         if (_index == previousItemIndex)
             return;
 
-        itemIndex = _index;
+    itemIndex = _index;
 
-        items[itemIndex].gameObject.SetActive(true);
+    items[itemIndex].gameObject.SetActive(true);
 
-        if (previousItemIndex != -1)
-        {
-            items[previousItemIndex].gameObject.SetActive(false);
-        }
+    if (previousItemIndex != -1)
+    {
+        items[previousItemIndex].gameObject.SetActive(false);
+    }
 
-        previousItemIndex = itemIndex;
+    previousItemIndex = itemIndex;
 
         if (PV.IsMine)
         {
@@ -171,36 +193,36 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
         }
     }
 
-    public override void OnPlayerPropertiesUpdate(Player targetPlayer, Hashtable changedProps)
+public override void OnPlayerPropertiesUpdate(Player targetPlayer, Hashtable changedProps)
+{
+    if (!PV.IsMine && targetPlayer == PV.Owner)
     {
-        if (!PV.IsMine && targetPlayer == PV.Owner)
-        {
-            EquipItem((int)changedProps["itemIndex"]);
-        }
+        EquipItem((int)changedProps["itemIndex"]);
     }
+}
 
   
 
-    public void TakeDamage(float damage, Collider collider)
+public void TakeDamage(float damage, Collider collider)
+{
+    if (collider == headCollider)
     {
-        if (collider == headCollider)
-        {
-            PV.RPC("RPC_TakeDamage", RpcTarget.All, damage * 2f);
+        PV.RPC("RPC_TakeDamage", RpcTarget.All, damage * 2f);
 
-        }
-        if (collider == chestCollider)
-        {
-            PV.RPC("RPC_TakeDamage", RpcTarget.All, damage);
+    }
+    if (collider == chestCollider)
+    {
+        PV.RPC("RPC_TakeDamage", RpcTarget.All, damage);
 
-        }
-        if (collider == leftFootCollider)
-        {
-            PV.RPC("RPC_TakeDamage", RpcTarget.All, damage * 0.5f);
+    }
+    if (collider == leftFootCollider)
+    {
+        PV.RPC("RPC_TakeDamage", RpcTarget.All, damage * 0.5f);
 
-        }
-        if (collider == rightFootCollider)
-        {
-            PV.RPC("RPC_TakeDamage", RpcTarget.All, damage * 0.5f);
+    }
+    if (collider == rightFootCollider)
+    {
+        PV.RPC("RPC_TakeDamage", RpcTarget.All, damage * 0.5f);
 
         }
         }
@@ -211,21 +233,21 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
             playerMechanics.SetGroundedState(state);
     }
 
-    [PunRPC]
-    void RPC_TakeDamage(float damage)
+[PunRPC]
+void RPC_TakeDamage(float damage)
+{
+    if (!PV.IsMine)
+        return;
+
+    currentHealth -= damage;
+
+    healthbarImage.fillAmount = currentHealth / maxHealth;
+
+    if (currentHealth <= 0)
     {
-        if (!PV.IsMine)
-            return;
-
-        currentHealth -= damage;
-
-        healthbarImage.fillAmount = currentHealth / maxHealth;
-
-        if (currentHealth <= 0)
-        {
-            Die();
-        }
+        Die();
     }
+}
 
     void Die()
     {
