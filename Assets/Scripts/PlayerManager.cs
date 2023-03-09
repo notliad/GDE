@@ -1,3 +1,8 @@
+using Photon.Pun;
+using System.IO;
+using Assets.Scripts.Player;
+using UnityEngine;
+
 public class PlayerManager : MonoBehaviour
 {
     PhotonView PV;
