@@ -1,3 +1,4 @@
+using Assets.Scripts.Player;
 using Photon.Pun;
 using Photon.Realtime;
 using UnityEngine;
@@ -25,12 +26,8 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
 
     int itemIndex;
     int previousItemIndex = -1;
-
-    private float verticalLookRotation;
     bool grounded;
 
-    Vector3 smoothMoveVelocity;
-    Vector3 moveAmount;
 
     Rigidbody rb;
     PhotonView PV;
@@ -43,23 +40,36 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
 
 
     PlayerManager playerManager;
+    public PlayerMechanics playerMechanics;
 
     void Awake()
     {
         rb = GetComponent<Rigidbody>();
         PV = GetComponent<PhotonView>();
-
         playerManager = PhotonView.Find((int)PV.InstantiationData[0]).GetComponent<PlayerManager>();
+        playerMechanics = new PlayerMechanics(this, cameraHolder, animator, runFootsteps);
+    }
+    void Start()
+    {
+        if (PV.IsMine)
+        {
+            EquipItem(0);
+            playerMechanics = new PlayerMechanics(this, cameraHolder, animator, runFootsteps);
+        }
+        else
+        {
+            Destroy(GetComponentInChildren<Camera>().gameObject);
+            Destroy(rb);
+            Destroy(ui);
+        }
     }
 
     void Update()
     {
         if (!PV.IsMine)
             return;
-        Look();
-        Move();
-        Jump();
-        Animate();
+
+        playerMechanics.OnUpdate();
 
 
         for (int i = 0; i < items.Length; i++)
@@ -152,41 +162,17 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
         }
     }
 
-    void Start()
-    {
-        if (PV.IsMine)
-        {
-            EquipItem(0);
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = false;
-        }
-        else
-        {
-            Destroy(GetComponentInChildren<Camera>().gameObject);
-            Destroy(rb);
-            Destroy(ui);
-        }
-    }
-
-        if (Input.GetKeyDown(KeyCode.Escape))
-        {
-            pauseMenu.SetActive(!pauseMenu.activeSelf);
-            Cursor.lockState = pauseMenu.activeSelf? CursorLockMode.None : CursorLockMode.Locked;
-    Cursor.visible = pauseMenu.activeSelf;
-        }
-    }
-
     void FixedUpdate()
-{
-    if (!PV.IsMine)
-        return;
-    playerMechanics.OnFixedUpdate();
-}
+    {
+        if (!PV.IsMine)
+            return;
+        playerMechanics.OnFixedUpdate();
+    }
 
-void EquipItem(int _index)
-{
-    if (_index == previousItemIndex)
-        return;
+    void EquipItem(int _index)
+    {
+        if (_index == previousItemIndex)
+            return;
 
     itemIndex = _index;
 
@@ -199,18 +185,13 @@ void EquipItem(int _index)
 
     previousItemIndex = itemIndex;
 
-    if (PV.IsMine)
-    {
-        Hashtable hash = new Hashtable();
-        hash.Add("itemIndex", itemIndex);
-        PhotonNetwork.LocalPlayer.SetCustomProperties(hash);
+        if (PV.IsMine)
+        {
+            Hashtable hash = new Hashtable();
+            hash.Add("itemIndex", itemIndex);
+            PhotonNetwork.LocalPlayer.SetCustomProperties(hash);
+        }
     }
-}
-
-public void SetGroundedState(bool _grounded)
-{
-    grounded = _grounded;
-}
 
 public override void OnPlayerPropertiesUpdate(Player targetPlayer, Hashtable changedProps)
 {
@@ -220,12 +201,7 @@ public override void OnPlayerPropertiesUpdate(Player targetPlayer, Hashtable cha
     }
 }
 
-void FixedUpdate()
-{
-    if (!PV.IsMine)
-        return;
-    rb.MovePosition(rb.position + transform.TransformDirection(moveAmount) * Time.fixedDeltaTime);
-}
+  
 
 public void TakeDamage(float damage, Collider collider)
 {
@@ -248,8 +224,14 @@ public void TakeDamage(float damage, Collider collider)
     {
         PV.RPC("RPC_TakeDamage", RpcTarget.All, damage * 0.5f);
 
+        }
+        }
+        public void SetGroundedState(bool state)
+    {
+        //Debug.Log("playerMechanics:" + (playerMechanics?.ToString() ?? "null"));
+        if (playerMechanics != null)
+            playerMechanics.SetGroundedState(state);
     }
-}
 
 [PunRPC]
 void RPC_TakeDamage(float damage)
@@ -267,23 +249,8 @@ void RPC_TakeDamage(float damage)
     }
 }
 
-void Die()
-{
-    playerManager.Die();
-}
-
-void Animate()
-{
-    animator.SetBool("RunLeft", Input.GetAxisRaw("Vertical") > 0 && Input.GetAxisRaw("Horizontal") < 0);
-    animator.SetBool("RunRight", Input.GetAxisRaw("Vertical") > 0 && Input.GetAxisRaw("Horizontal") > 0);
-    animator.SetBool("BackLeft", Input.GetAxisRaw("Vertical") < 0 && Input.GetAxisRaw("Horizontal") < 0);
-    animator.SetBool("BackRight", Input.GetAxisRaw("Vertical") < 0 && Input.GetAxisRaw("Horizontal") > 0);
-    animator.SetBool("StrafeLeft", Input.GetAxisRaw("Horizontal") < 0);
-    animator.SetBool("RunForward", Input.GetAxisRaw("Vertical") > 0);
-    animator.SetBool("Back", Input.GetAxisRaw("Vertical") < 0);
-    animator.SetBool("StrafeRight", Input.GetAxisRaw("Horizontal") > 0);
-    animator.SetBool("Sprint", Input.GetKey(KeyCode.LeftShift));
-
-}
-
+    void Die()
+    {
+        playerManager.Die();
+    }
 }
