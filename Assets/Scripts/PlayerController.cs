@@ -179,7 +179,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
         }
     }
 
-  
+
 
     public void TakeDamage(float damage, Collider collider)
     {
@@ -203,8 +203,8 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
             PV.RPC("RPC_TakeDamage", RpcTarget.All, damage * 0.5f);
 
         }
-        }
-        public void SetGroundedState(bool state)
+    }
+    public void SetGroundedState(bool state)
     {
         //Debug.Log("playerMechanics:" + (playerMechanics?.ToString() ?? "null"));
         if (playerMechanics != null)
