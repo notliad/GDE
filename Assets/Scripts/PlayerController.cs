@@ -201,7 +201,7 @@ public override void OnPlayerPropertiesUpdate(Player targetPlayer, Hashtable cha
     }
 }
 
-  
+
 
 public void TakeDamage(float damage, Collider collider)
 {
@@ -225,8 +225,8 @@ public void TakeDamage(float damage, Collider collider)
         PV.RPC("RPC_TakeDamage", RpcTarget.All, damage * 0.5f);
 
         }
-        }
-        public void SetGroundedState(bool state)
+    }
+    public void SetGroundedState(bool state)
     {
         //Debug.Log("playerMechanics:" + (playerMechanics?.ToString() ?? "null"));
         if (playerMechanics != null)
