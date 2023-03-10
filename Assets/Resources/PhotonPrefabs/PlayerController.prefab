@@ -1548,13 +1548,14 @@ GameObject:
   - component: {fileID: 2315794327238906264}
   - component: {fileID: 6361340742525862412}
   - component: {fileID: 6611025066495452166}
+  - component: {fileID: 1245408996973435775}
   m_Layer: 0
   m_Name: PauseMenu
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &7017305461590403190
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1584,7 +1585,7 @@ Canvas:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1709943735053906308}
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 3
   m_RenderMode: 0
   m_Camera: {fileID: 0}
@@ -1639,6 +1640,19 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
+--- !u!114 &1245408996973435775
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1709943735053906308}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b4d5fb35243665a479601c14e28dc86d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  isPaused: 0
 --- !u!1 &1755307898228896630
 GameObject:
   m_ObjectHideFlags: 0
@@ -4611,7 +4625,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 5261878169989414799}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1245408996973435775}
+        m_TargetAssemblyTypeName: PauseManager, Assembly-CSharp
+        m_MethodName: Unpause
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &5225984151747293732
 GameObject:
   m_ObjectHideFlags: 0
@@ -5427,7 +5453,6 @@ MonoBehaviour:
   throwPower: {fileID: 3986158828963488746}
   ui: {fileID: 2657299349515318232}
   cameraHolder: {fileID: 2842093810860778948}
-  pauseMenu: {fileID: 1709943735053906308}
   mouseSensitivity: 3
   sprintSpeed: 6
   walkSpeed: 3

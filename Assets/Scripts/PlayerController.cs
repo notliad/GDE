@@ -12,7 +12,6 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
     [SerializeField] Image throwPower;
     [SerializeField] GameObject ui;
     [SerializeField] GameObject cameraHolder;
-    [SerializeField] GameObject pauseMenu;
     [SerializeField] float mouseSensitivity, sprintSpeed, walkSpeed, jumpForce, smoothTime;
     [SerializeField] Animator animator;
 
@@ -41,12 +40,14 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
 
 
     PlayerManager playerManager;
+    PauseManager pauseMenu;
     public PlayerMechanics playerMechanics;
 
     void Awake()
     {
         rb = GetComponent<Rigidbody>();
         PV = GetComponent<PhotonView>();
+        pauseMenu = GetComponentInChildren<PauseManager>();
         playerManager = PhotonView.Find((int)PV.InstantiationData[0]).GetComponent<PlayerManager>();
         playerMechanics = new PlayerMechanics(this, cameraHolder, animator, runFootsteps);
     }
@@ -55,8 +56,10 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
     {
         if (!PV.IsMine)
             return;
-
-        playerMechanics.OnUpdate();
+        if (!pauseMenu.isPaused)
+        {
+            playerMechanics.OnUpdate();
+        }
 
 
         for (int i = 0; i < items.Length; i++)
@@ -90,7 +93,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
                 EquipItem(itemIndex - 1);
             }
         }
-        if (!pauseMenu.activeSelf)
+        if (!pauseMenu.isPaused)
         {
             if (Input.GetMouseButtonDown(0))
             {
@@ -134,7 +137,6 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
             }
         }
 
-
         if (transform.position.y < -10f)
         {
             Die();
@@ -143,9 +145,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
 
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            pauseMenu.SetActive(!pauseMenu.activeSelf);
-            Cursor.lockState = pauseMenu.activeSelf ? CursorLockMode.None : CursorLockMode.Locked;
-            Cursor.visible = pauseMenu.activeSelf;
+            pauseMenu.isPaused = !pauseMenu.isPaused;
         }
     }
 
@@ -168,7 +168,10 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
     {
         if (!PV.IsMine)
             return;
-        playerMechanics.OnFixedUpdate();
+        if (!pauseMenu.isPaused)
+        {
+            playerMechanics.OnFixedUpdate();
+        }
     }
 
     void EquipItem(int _index)
