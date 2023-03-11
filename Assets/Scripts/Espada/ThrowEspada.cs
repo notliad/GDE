@@ -36,14 +36,6 @@ public class ThrowEspada : Espada
         readyToThrow = true;
     }
 
-    private void FixedUpdate()
-    {
-        if (projectileRb != null)
-        {
-            projectileRb.AddRelativeForce(Vector3.up * -thrustForce, ForceMode.Force);
-        }
-    }
-
     public override void LetGo()
     {
         readyToThrow = false;
@@ -70,11 +62,6 @@ public class ThrowEspada : Espada
         Invoke(nameof(ResetThrow), throwCooldown);
     }
 
-    void OnCollisionEnter(Collision collision)
-    {
-        collision.gameObject.GetComponent<IDamageable>()?.TakeDamage(collision.relativeVelocity.magnitude, collision.collider);
-    }
-
     private void ResetThrow()
     {
         readyToThrow = true;
@@ -87,17 +74,9 @@ public class ThrowEspada : Espada
         {
             Transform cam = FindFirstObjectByType<Camera>().transform;
 
-            GameObject projectilePhoton = PhotonNetwork.Instantiate(objectToThrow.name, attackPoint.position, cam.transform.rotation);
-            projectileRb = projectilePhoton.GetComponent<Rigidbody>();
+            var initData = new object[2] { cam.transform.forward, time };
 
-            audioSource = projectilePhoton.GetComponent<AudioSource>();
-            audioSource.Play();
-
-            Vector3 forceToAdd = cam.transform.forward * (throwForce * time) + transform.up * throwUpwardForce;
-            Vector3 torque = projectilePhoton.transform.right * rotationThrow;
-
-            projectileRb.AddForce(forceToAdd, ForceMode.Impulse);
-            projectileRb.AddTorque(torque);
+            GameObject projectilePhoton = PhotonNetwork.Instantiate(objectToThrow.name, attackPoint.position, cam.transform.rotation, 0, initData);
         }
 
     }

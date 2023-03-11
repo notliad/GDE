@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: 6442006345450216806}
   - component: {fileID: 6747247786824117359}
   - component: {fileID: -7078166171490556909}
+  - component: {fileID: -4892230874451886406}
   m_Layer: 0
   m_Name: EspadaObjectTrowable
   m_TagString: Untagged
@@ -311,6 +312,26 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &-4892230874451886406
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 368256030999197654}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 494137325818def448c6aab4da75fc00, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  itemInfo: {fileID: 11400000, guid: 0d2f789e1b6c07247bf08a8e2b731104, type: 2}
+  gameObject: {fileID: 368256030999197654}
+  espadaThrowablePrefab: {fileID: 368256030999197654}
+  throwForce: 4
+  maxThrowForce: 4
+  throwUpwardForce: 4
+  thrustForce: 4
+  rotationThrow: 4
 --- !u!1 &4364367006499242802
 GameObject:
   m_ObjectHideFlags: 0
