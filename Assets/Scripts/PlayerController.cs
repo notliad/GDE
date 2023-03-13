@@ -4,7 +4,6 @@ using Photon.Realtime;
 using UnityEngine;
 using UnityEngine.UI;
 using Hashtable = ExitGames.Client.Photon.Hashtable;
-using Assets.Scripts.Player;
 
 public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
 {

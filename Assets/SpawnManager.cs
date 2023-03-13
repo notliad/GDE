@@ -6,16 +6,24 @@ public class SpawnManager : MonoBehaviour
 {
     public static SpawnManager Instance;
 
-    Spawnpoint[] spawnpoints;
+    [SerializeField] Spawnpoint[] spawnpointsTeamOne;
+    [SerializeField] Spawnpoint[] spawnpointsTeamTwo;
 
     void Awake()
     {
         Instance = this;
-        spawnpoints = GetComponentsInChildren<Spawnpoint>();
     }
 
-    public Transform GetSpawnPoint()
+    public Transform GetSpawnPoint(int team)
     {
-        return spawnpoints[Random.Range(0, spawnpoints.Length)].transform;
+        if (team == 1)
+        {
+            return spawnpointsTeamOne[Random.Range(0, spawnpointsTeamOne.Length)].transform;
+
+        }
+        else { 
+            return spawnpointsTeamTwo[Random.Range(0, spawnpointsTeamTwo.Length)].transform;
+
+        }
     }
 }
