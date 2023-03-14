@@ -451,7 +451,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: -395.022, y: -32.773956}
+  m_AnchoredPosition: {x: -516.00195, y: -2.8339844}
   m_SizeDelta: {x: 585.956, y: -386.32214}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &164858153
@@ -587,7 +587,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &208680378
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -887,7 +887,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -395.02, y: -200.94}
+  m_AnchoredPosition: {x: -516, y: -171}
   m_SizeDelta: {x: -1534.4, y: 49.993}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &253265795
@@ -1024,7 +1024,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: -504, y: 75}
+  m_AnchoredPosition: {x: -624.98, y: 104.93997}
   m_SizeDelta: {x: 600, y: 70}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &258555860
@@ -1158,7 +1158,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: -394, y: 75}
+  m_AnchoredPosition: {x: -514.98, y: 104.93997}
   m_SizeDelta: {x: 600, y: 70}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &259649083
@@ -1696,7 +1696,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 562, y: -22.999958}
+  m_AnchoredPosition: {x: 441.02002, y: 6.9400024}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &422376192
@@ -2216,7 +2216,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &633994817
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2235,7 +2235,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 13, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &633994818
@@ -2533,7 +2533,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 761759524}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1023042867}
+        m_TargetAssemblyTypeName: Launcher, Assembly-CSharp
+        m_MethodName: ChangeTeam
+        m_Mode: 3
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 1
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &761759524
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3445,6 +3457,8 @@ MonoBehaviour:
   roomListContent: {fileID: 641566004}
   roomListItemPrefab: {fileID: 2959988082013432617, guid: f1087b56a29f76a4a81f18869f666054, type: 3}
   playerListContent: {fileID: 164858152}
+  playerListTeamOne: {fileID: 1060592483}
+  playerListTeamTwo: {fileID: 2132655093}
   PlayerListItemPrefab: {fileID: 4569413086711181289, guid: f7c47cf12a4ef7b4d92f65c1bdbead74, type: 3}
   startGameButton: {fileID: 258555858}
 --- !u!114 &1023042868
@@ -3842,7 +3856,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 562, y: 320}
+  m_AnchoredPosition: {x: 441.02002, y: 349.93997}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1098052986
@@ -5937,7 +5951,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2121510121}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1023042867}
+        m_TargetAssemblyTypeName: Launcher, Assembly-CSharp
+        m_MethodName: ChangeTeam
+        m_Mode: 3
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 2
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &2121510121
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -16,6 +16,8 @@ public class Launcher: MonoBehaviourPunCallbacks
     [SerializeField] Transform roomListContent;
     [SerializeField] GameObject roomListItemPrefab;
     [SerializeField] Transform playerListContent;
+    [SerializeField] Transform playerListTeamOne;
+    [SerializeField] Transform playerListTeamTwo;
     [SerializeField] GameObject PlayerListItemPrefab;
     [SerializeField] GameObject startGameButton;
 
@@ -77,6 +79,36 @@ public class Launcher: MonoBehaviourPunCallbacks
         }
 
         startGameButton.SetActive(PhotonNetwork.IsMasterClient);
+    }
+
+    public void ChangeTeam(int team)
+    {
+        Player[] players = PhotonNetwork.PlayerList;
+
+        if (team == 1)
+        {
+            foreach (Transform child in playerListContent)
+            {
+                Destroy(child.gameObject);
+            }
+
+            for (int i = 0; i < players.Count(); i++)
+            {
+                Instantiate(PlayerListItemPrefab, playerListTeamOne).GetComponent<PlayerListItem>().SetUp(players[i]);
+            }
+        }
+        else
+        {
+            foreach (Transform child in playerListContent)
+            {
+                Destroy(child.gameObject);
+            }
+
+            for (int i = 0; i < players.Count(); i++)
+            {
+                Instantiate(PlayerListItemPrefab, playerListTeamTwo).GetComponent<PlayerListItem>().SetUp(players[i]);
+            }
+        }
     }
 
     public override void OnMasterClientSwitched(Player newMasterClient)
