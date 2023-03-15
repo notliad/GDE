@@ -9,7 +9,6 @@ namespace Assets.Scripts.Player
         private GameObject camera;
         private PlayerAnimation PlayerAnimation { get; set; }
 
-        private AudioSource runFootsteps;
         private Rigidbody rb;
         private Config config;
 
@@ -17,12 +16,11 @@ namespace Assets.Scripts.Player
         Vector3 smoothMoveVelocity;
         Vector3 moveAmount;
         bool grounded;
-        public PlayerMechanics(MonoBehaviour _player, GameObject _camera, Animator animatior, AudioSource runFootsteps)
+        public PlayerMechanics(MonoBehaviour _player, GameObject _camera, Animator animatior)
         {
             config = GameObject.FindGameObjectsWithTag(Config.ConfigTag).First().GetComponent<Config>();
             rb = _player.GetComponent<Rigidbody>();
             PlayerAnimation = new PlayerAnimation(animatior);
-            this.runFootsteps = runFootsteps;
             player = _player;
             camera = _camera;
         }
@@ -36,7 +34,7 @@ namespace Assets.Scripts.Player
         }
         public void OnFixedUpdate()
         {
-            rb.MovePosition(rb.position + player.transform.TransformDirection(moveAmount) * Time.fixedDeltaTime);
+            //rb.MovePosition(rb.position + player.transform.TransformDirection(moveAmount) * Time.fixedDeltaTime);
         }
 
         public void SetGroundedState(bool _grounded)
@@ -50,22 +48,12 @@ namespace Assets.Scripts.Player
             if (Input.GetKey(KeyCode.LeftShift))
             {
                 moveDir = new Vector3(0, 0, Input.GetAxisRaw("Vertical")).normalized;
-
             }
             else
             {
                 moveDir = new Vector3(Input.GetAxisRaw("Horizontal"), 0, Input.GetAxisRaw("Vertical")).normalized;
-                if (moveDir.magnitude > 0)
-                {
-                    runFootsteps.enabled = true;
-                }
-                else
-                {
-                    runFootsteps.enabled = false;
-                }
 
             }
-
             moveAmount = Vector3.SmoothDamp(moveAmount, moveDir * (Input.GetKey(KeyCode.LeftShift) ? config.sprintspeed : config.walkspeed),
                 ref smoothMoveVelocity, config.SMOOTH_TIME);
         }
@@ -74,6 +62,7 @@ namespace Assets.Scripts.Player
         {
             if (Input.GetKeyDown(KeyCode.Space) && grounded)
             {
+
                 rb.AddForce(player.transform.up * config.JUMP_FORCE);
                 PlayerAnimation.SetJump(true);
             }

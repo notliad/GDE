@@ -14,7 +14,6 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
     [SerializeField] float mouseSensitivity, sprintSpeed, walkSpeed, jumpForce, smoothTime;
     [SerializeField] Animator animator;
 
-    [SerializeField] AudioSource runFootsteps;
     [SerializeField] Collider headCollider;
     [SerializeField] Collider chestCollider;
     [SerializeField] Collider leftFootCollider;
@@ -26,7 +25,6 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
     int itemIndex;
     int previousItemIndex = -1;
     bool grounded;
-
 
     Rigidbody rb;
     PhotonView PV;
@@ -48,7 +46,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
         PV = GetComponent<PhotonView>();
         pauseMenu = GetComponentInChildren<PauseManager>();
         playerManager = PhotonView.Find((int)PV.InstantiationData[0]).GetComponent<PlayerManager>();
-        playerMechanics = new PlayerMechanics(this, cameraHolder, animator, runFootsteps);
+        playerMechanics = new PlayerMechanics(this, cameraHolder, animator);
     }
 
     void Update()
@@ -132,7 +130,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
 
             if (Input.GetMouseButtonDown(1))
             {
-                items[itemIndex].LetGo();
+                //items[itemIndex].LetGo();
             }
         }
 
@@ -153,8 +151,6 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
         if (PV.IsMine)
         {
             EquipItem(0);
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = false;
         }
         else
         {
