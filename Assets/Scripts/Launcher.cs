@@ -5,8 +5,10 @@ using Photon.Pun;
 using Photon.Realtime;
 using TMPro;
 using System.Linq;
+using Photon.Pun.UtilityScripts;
+using ExitGames.Client.Photon;
 
-public class Launcher: MonoBehaviourPunCallbacks
+public class Launcher : MonoBehaviourPunCallbacks, IOnEventCallback
 {
     public static Launcher Instance;
 
@@ -22,6 +24,8 @@ public class Launcher: MonoBehaviourPunCallbacks
     [SerializeField] GameObject startGameButton;
 
 
+    private byte JOIN_TEAM_EVENTTYPE = 1;
+
     void Awake()
     {
         Instance = this;
@@ -32,7 +36,15 @@ public class Launcher: MonoBehaviourPunCallbacks
         Debug.Log("Connecting to Master");
         PhotonNetwork.ConnectUsingSettings();
     }
+    public override void OnEnable()
+    {
+        PhotonNetwork.AddCallbackTarget(this);
+    }
 
+    public override void OnDisable()
+    {
+        PhotonNetwork.RemoveCallbackTarget(this);
+    }
     public override void OnConnectedToMaster()
     {
         PhotonNetwork.JoinLobby();
@@ -47,7 +59,7 @@ public class Launcher: MonoBehaviourPunCallbacks
 
     public void CreateRoom()
     {
-        if(string.IsNullOrEmpty(roomNameInputField.text))
+        if (string.IsNullOrEmpty(roomNameInputField.text))
         {
             return;
         }
@@ -68,7 +80,7 @@ public class Launcher: MonoBehaviourPunCallbacks
 
         Player[] players = PhotonNetwork.PlayerList;
 
-        foreach(Transform child in playerListContent)
+        foreach (Transform child in playerListContent)
         {
             Destroy(child.gameObject);
         }
@@ -83,31 +95,24 @@ public class Launcher: MonoBehaviourPunCallbacks
 
     public void ChangeTeam(int team)
     {
-        Player[] players = PhotonNetwork.PlayerList;
+        Player player = PhotonNetwork.LocalPlayer;
+        ChangeTeam(player.NickName, team);
+        object[] content = new object[] { player.NickName, team };
+        RaiseEventOptions raiseEventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.All };
+        PhotonNetwork.RaiseEvent(JOIN_TEAM_EVENTTYPE, content, raiseEventOptions, SendOptions.SendReliable);
+    }
 
-        if (team == 1)
+    private void ChangeTeam(string nickName, int team)
+    {
+        var player = PhotonNetwork.PlayerList.First(_ => _.NickName == nickName);
+        player.JoinTeam(new PhotonTeam { Code = (byte)team });
+        foreach (Transform child in playerListContent)
         {
-            foreach (Transform child in playerListContent)
-            {
-                Destroy(child.gameObject);
-            }
-
-            for (int i = 0; i < players.Count(); i++)
-            {
-                Instantiate(PlayerListItemPrefab, playerListTeamOne).GetComponent<PlayerListItem>().SetUp(players[i]);
-            }
-        }
-        else
-        {
-            foreach (Transform child in playerListContent)
-            {
-                Destroy(child.gameObject);
-            }
-
-            for (int i = 0; i < players.Count(); i++)
-            {
-                Instantiate(PlayerListItemPrefab, playerListTeamTwo).GetComponent<PlayerListItem>().SetUp(players[i]);
-            }
+            var listItem = child.GetComponent<PlayerListItem>();
+            if (listItem.player.NickName != player.NickName) continue;
+            Destroy(child.gameObject);
+            var teamList = team == 1 ? playerListTeamOne : playerListTeamTwo;
+            Instantiate(PlayerListItemPrefab, teamList).GetComponent<PlayerListItem>().SetUp(player);
         }
     }
 
@@ -141,7 +146,7 @@ public class Launcher: MonoBehaviourPunCallbacks
 
     public override void OnRoomListUpdate(List<RoomInfo> roomList)
     {
-        foreach(Transform trans in roomListContent)
+        foreach (Transform trans in roomListContent)
         {
             Destroy(trans.gameObject);
         }
@@ -156,5 +161,20 @@ public class Launcher: MonoBehaviourPunCallbacks
     public override void OnPlayerEnteredRoom(Player newPlayer)
     {
         Instantiate(PlayerListItemPrefab, playerListContent).GetComponent<PlayerListItem>().SetUp(newPlayer);
+    }
+
+    public void OnEvent(EventData photonEvent)
+    {
+        byte eventCode = photonEvent.Code;
+
+        if (eventCode == JOIN_TEAM_EVENTTYPE)
+        {
+            object[] data = (object[])photonEvent.CustomData;
+
+            var nickName = (string)data[0];
+            var team = (int)data[1];
+
+            ChangeTeam(nickName, team);
+        }
     }
 }
