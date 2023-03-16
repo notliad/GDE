@@ -9,9 +9,11 @@ namespace Assets.Scripts.Player
         {
             _animator = animator;
         }
-        public void Animate()
+        public void Animate(Vector3 moveDir)
         {
-
+            //_animator.SetBool("isMoving", moveDir.magnitude > 0);
+            _animator.SetFloat("Horizontal", moveDir.x);
+            _animator.SetFloat("Vertical", moveDir.z);
             //_animator.SetBool("RunLeft", Input.GetAxisRaw("Vertical") > 0 && Input.GetAxisRaw("Horizontal") < 0);
             //_animator.SetBool("RunRight", Input.GetAxisRaw("Vertical") > 0 && Input.GetAxisRaw("Horizontal") > 0);
             //_animator.SetBool("BackLeft", Input.GetAxisRaw("Vertical") < 0 && Input.GetAxisRaw("Horizontal") < 0);
@@ -27,6 +29,16 @@ namespace Assets.Scripts.Player
         public void SetJump(bool jump)
         {
             _animator.SetBool("Jump", jump);
+        }
+
+        public void SetGrounded(bool grounded)
+        {
+            _animator.SetBool("isGrounded", grounded);
+        }
+
+        public void SetFalling(bool falling)
+        {
+            _animator.SetBool("isFalling", falling);
         }
     }
 }

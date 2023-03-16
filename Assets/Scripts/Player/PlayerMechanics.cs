@@ -30,7 +30,6 @@ namespace Assets.Scripts.Player
             Look();
             Move();
             Jump();
-            PlayerAnimation.Animate();
         }
         public void OnFixedUpdate()
         {
@@ -54,21 +53,31 @@ namespace Assets.Scripts.Player
                 moveDir = new Vector3(Input.GetAxisRaw("Horizontal"), 0, Input.GetAxisRaw("Vertical")).normalized;
 
             }
-            moveAmount = Vector3.SmoothDamp(moveAmount, moveDir * (Input.GetKey(KeyCode.LeftShift) ? config.sprintspeed : config.walkspeed),
+            moveAmount = Vector3.SmoothDamp(moveAmount, moveDir * config.walkspeed,
                 ref smoothMoveVelocity, config.SMOOTH_TIME);
+            PlayerAnimation.Animate(moveAmount);
         }
 
         void Jump()
         {
             if (Input.GetKeyDown(KeyCode.Space) && grounded)
             {
-
                 rb.AddForce(player.transform.up * config.JUMP_FORCE);
-                PlayerAnimation.SetJump(true);
             }
             if (!grounded)
             {
+                PlayerAnimation.SetJump(true);
+                PlayerAnimation.SetGrounded(grounded);
+                if (rb.velocity.y < 0)
+                {
+                    PlayerAnimation.SetFalling(true);
+                }
+            }
+            else
+            {
+                PlayerAnimation.SetGrounded(grounded);
                 PlayerAnimation.SetJump(false);
+                PlayerAnimation.SetFalling(false);
             }
         }
 
