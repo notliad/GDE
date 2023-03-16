@@ -22,6 +22,7 @@ public class PlayerGroundCheck : MonoBehaviour
 
     void OnTriggerExit(Collider other)
     {
+        Debug.Log("ON TRIGGER EXIT");
         if (other.gameObject == playerController.gameObject)
             return;
 
@@ -47,6 +48,8 @@ public class PlayerGroundCheck : MonoBehaviour
 
     void OnCollisionExit(Collision collision)
     {
+        Debug.Log("ONCOLLISIONEXIT");
+
         if (collision.gameObject == playerController.gameObject)
             return;
 

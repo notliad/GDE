@@ -15,10 +15,11 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
     [SerializeField] Animator animator;
 
     [SerializeField] Collider headCollider;
-    [SerializeField] Collider armsCollider;
+    [SerializeField] Collider leftArmCollider;
+    [SerializeField] Collider rightArmCollider;
     [SerializeField] Collider chestCollider;
-    [SerializeField] Collider legsCollider;
-    [SerializeField] Collider feetCollider;
+    [SerializeField] Collider leftLegCollider;
+    [SerializeField] Collider rightLegCollider;
 
 
     [SerializeField] Item[] items;
@@ -214,17 +215,22 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
             PV.RPC("RPC_TakeDamage", RpcTarget.All, damage);
 
         }
-        if (collider == armsCollider)
+        if (collider == leftArmCollider)
         {
             PV.RPC("RPC_TakeDamage", RpcTarget.All, damage);
 
         }
-        if (collider == legsCollider)
+        if (collider == rightArmCollider)
+        {
+            PV.RPC("RPC_TakeDamage", RpcTarget.All, damage);
+
+        }
+        if (collider == leftLegCollider)
         {
             PV.RPC("RPC_TakeDamage", RpcTarget.All, damage * 0.5f);
 
         }
-        if (collider == feetCollider)
+        if (collider == rightLegCollider)
         {
             PV.RPC("RPC_TakeDamage", RpcTarget.All, damage * 0.5f);
 

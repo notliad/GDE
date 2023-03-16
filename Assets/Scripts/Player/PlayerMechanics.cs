@@ -61,6 +61,7 @@ namespace Assets.Scripts.Player
 
         void Jump()
         {
+            PlayerAnimation.SetGrounded(grounded);
             if (Input.GetKeyDown(KeyCode.Space) && grounded)
             {
                 rb.AddForce(player.transform.up * config.JUMP_FORCE);
@@ -72,7 +73,6 @@ namespace Assets.Scripts.Player
                     rb.MovePosition(rb.position + player.transform.TransformDirection(moveAmount) * Time.fixedDeltaTime);
                 }
                 PlayerAnimation.SetJump(true);
-                PlayerAnimation.SetGrounded(grounded);
                 if (rb.velocity.y < 0)
                 {
                     PlayerAnimation.SetFalling(true);
@@ -80,7 +80,6 @@ namespace Assets.Scripts.Player
             }
             else
             {
-                PlayerAnimation.SetGrounded(grounded);
                 PlayerAnimation.SetJump(false);
                 PlayerAnimation.SetFalling(false);
             }
