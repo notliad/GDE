@@ -7,6 +7,9 @@ using TMPro;
 using System.Linq;
 using Photon.Pun.UtilityScripts;
 using ExitGames.Client.Photon;
+using Assets.Scripts.Extensions;
+using Assets.Scripts.Consts;
+using System;
 
 public class Launcher : MonoBehaviourPunCallbacks, IOnEventCallback
 {
@@ -22,13 +25,17 @@ public class Launcher : MonoBehaviourPunCallbacks, IOnEventCallback
     [SerializeField] Transform playerListTeamTwo;
     [SerializeField] GameObject PlayerListItemPrefab;
     [SerializeField] GameObject startGameButton;
+    [SerializeField] GameObject teamOneButton;
+    [SerializeField] GameObject teamTwoButton;
 
+    private Dictionary<int, Transform> playerLists;
 
     private byte JOIN_TEAM_EVENTTYPE = 1;
 
     void Awake()
     {
         Instance = this;
+        playerLists = new Dictionary<int, Transform> { { 0, playerListContent }, { 1, playerListTeamOne }, { 2, playerListTeamTwo } };
     }
 
     void Start()
@@ -79,15 +86,10 @@ public class Launcher : MonoBehaviourPunCallbacks, IOnEventCallback
         roomNameText.text = PhotonNetwork.CurrentRoom.Name;
 
         Player[] players = PhotonNetwork.PlayerList;
-
-        foreach (Transform child in playerListContent)
+        foreach (var player in players)
         {
-            Destroy(child.gameObject);
-        }
-
-        for (int i = 0; i < players.Count(); i++)
-        {
-            Instantiate(PlayerListItemPrefab, playerListContent).GetComponent<PlayerListItem>().SetUp(players[i]);
+            var team = player.GetPhotonTeam()?.Code ?? 0;
+            Instantiate(PlayerListItemPrefab, playerLists[team]).GetComponent<PlayerListItem>().SetUp(player);
         }
 
         startGameButton.SetActive(PhotonNetwork.IsMasterClient);
@@ -95,24 +97,25 @@ public class Launcher : MonoBehaviourPunCallbacks, IOnEventCallback
 
     public void ChangeTeam(int team)
     {
+        (team == 1 ? teamOneButton : teamTwoButton).SetActive(false);
+        (team != 1 ? teamOneButton : teamTwoButton).SetActive(true);
         Player player = PhotonNetwork.LocalPlayer;
-        ChangeTeam(player.NickName, team);
-        object[] content = new object[] { player.NickName, team };
-        RaiseEventOptions raiseEventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.All };
-        PhotonNetwork.RaiseEvent(JOIN_TEAM_EVENTTYPE, content, raiseEventOptions, SendOptions.SendReliable);
+        var content = new object[] { player.NickName, team };
+        PhotonNetwork.RaiseEvent(JOIN_TEAM_EVENTTYPE, content, PhotonRaiseEvent.ToAll, SendOptions.SendReliable);
     }
 
-    private void ChangeTeam(string nickName, int team)
+    private void ChangeTeamPlayer(string nickName, int team)
     {
         var player = PhotonNetwork.PlayerList.First(_ => _.NickName == nickName);
-        player.JoinTeam(new PhotonTeam { Code = (byte)team });
-        foreach (Transform child in playerListContent)
+        var currentTeam = player.GetPhotonTeam()?.Code ?? 0;
+        if (currentTeam == team) return;
+        player.JoinTeam(team);
+        foreach (Transform child in playerLists[currentTeam])
         {
             var listItem = child.GetComponent<PlayerListItem>();
             if (listItem.player.NickName != player.NickName) continue;
             Destroy(child.gameObject);
-            var teamList = team == 1 ? playerListTeamOne : playerListTeamTwo;
-            Instantiate(PlayerListItemPrefab, teamList).GetComponent<PlayerListItem>().SetUp(player);
+            Instantiate(PlayerListItemPrefab, playerLists[team]).GetComponent<PlayerListItem>().SetUp(player);
         }
     }
 
@@ -134,8 +137,22 @@ public class Launcher : MonoBehaviourPunCallbacks, IOnEventCallback
 
     public void LeaveRoom()
     {
+        ResetAll();
         PhotonNetwork.LeaveRoom();
+        foreach (int key in playerLists.Keys)
+            foreach (Transform child in playerLists[key])
+            {
+                Destroy(child.gameObject);
+            }
         MenuManager.Instance.OpenMenu("loading");
+    }
+
+    private void ResetAll()
+    {
+        teamOneButton.SetActive(true);
+        teamTwoButton.SetActive(true);
+        if (PhotonNetwork.LocalPlayer.GetPhotonTeam() != null)
+            PhotonNetwork.LocalPlayer.LeaveCurrentTeam();
     }
 
     public override void OnLeftRoom()
@@ -174,7 +191,7 @@ public class Launcher : MonoBehaviourPunCallbacks, IOnEventCallback
             var nickName = (string)data[0];
             var team = (int)data[1];
 
-            ChangeTeam(nickName, team);
+            ChangeTeamPlayer(nickName, team);
         }
     }
 }
