@@ -2,6 +2,8 @@ using Photon.Pun;
 using System.IO;
 using Assets.Scripts.Player;
 using UnityEngine;
+using Photon.Pun.UtilityScripts;
+using Photon.Realtime;
 
 public class PlayerManager : MonoBehaviour
 {
@@ -24,7 +26,8 @@ public class PlayerManager : MonoBehaviour
 
     void CreateController()
     {
-        Transform spawnpoint = SpawnManager.Instance.GetSpawnPoint(2);
+        var team = PhotonNetwork.LocalPlayer.GetPhotonTeam();
+        Transform spawnpoint = SpawnManager.Instance.GetSpawnPoint((int)team.Code);
         controller = PhotonNetwork.Instantiate(Path.Combine("PhotonPrefabs", "PlayerController"), spawnpoint.position, spawnpoint.rotation, 0, new object[] { PV.ViewID });
     }
 
