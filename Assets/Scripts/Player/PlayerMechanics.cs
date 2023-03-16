@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 namespace Assets.Scripts.Player
 {
@@ -66,6 +67,10 @@ namespace Assets.Scripts.Player
             }
             if (!grounded)
             {
+                if (moveAmount.z > 1 || moveAmount.x != 0)
+                {
+                    rb.MovePosition(rb.position + player.transform.TransformDirection(moveAmount) * Time.fixedDeltaTime);
+                }
                 PlayerAnimation.SetJump(true);
                 PlayerAnimation.SetGrounded(grounded);
                 if (rb.velocity.y < 0)
