@@ -34,5 +34,15 @@ namespace Assets.Scripts.Player
         {
             _animator.SetBool("JumpRunning", jumpRunning);
         }
+
+        public void SetThrowEspada(bool throwEspada)
+        {
+            _animator.SetBool("Throw", throwEspada);
+        }
+
+        public void SetEquipped(bool equipped)
+        {
+            _animator.SetBool("Equipped", equipped);
+        }
     }
 }

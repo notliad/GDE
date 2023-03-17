@@ -13,6 +13,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
     [SerializeField] GameObject cameraHolder;
     [SerializeField] float mouseSensitivity, sprintSpeed, walkSpeed, jumpForce, smoothTime;
     [SerializeField] Animator animator;
+    [SerializeField] MeshRenderer equippedEspada;
 
     [SerializeField] Collider headCollider;
     [SerializeField] Collider armsCollider;
@@ -26,9 +27,11 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
     int itemIndex;
     int previousItemIndex = -1;
     bool grounded;
+    bool equipped = false;
 
     Rigidbody rb;
     PhotonView PV;
+    Image[] throwUI;
 
     const float maxHealth = 100f;
     float currentHealth = maxHealth;
@@ -45,6 +48,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
     {
         rb = GetComponent<Rigidbody>();
         PV = GetComponent<PhotonView>();
+        throwUI = throwPower.GetComponentsInChildren<Image>();
         pauseMenu = GetComponentInChildren<PauseManager>();
         playerManager = PhotonView.Find((int)PV.InstantiationData[0]).GetComponent<PlayerManager>();
         playerMechanics = new PlayerMechanics(this, cameraHolder, animator);
@@ -93,46 +97,39 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
         }
         if (!pauseMenu.isPaused)
         {
-            if (Input.GetMouseButtonDown(0))
+            if (equipped)
             {
-                startTime = Time.time;
-            }
-
-            if (Input.GetMouseButton(0))
-            {
-                float holdTime = Time.time - startTime;
-                throwPower.fillAmount = holdTime / maxHoldTime; // set the fill amount based on how long the button has been held down
-            }
-            if (Input.GetMouseButtonUp(0))
-            {
-                throwPower.fillAmount = 0;
-                float endTime = Time.time;
-                if (endTime > startTime)
+                if (Input.GetMouseButtonDown(0))
                 {
-                    if (endTime - startTime < 1)
-                    {
-                        items[itemIndex].Use(endTime - startTime + 1f);
-                    }
-                    else
-                    {
-                        if (endTime - startTime > maxHoldTime)
-                        {
-                            items[itemIndex].Use(maxHoldTime + 1f);
-                        }
-                        else
-                        {
-                            items[itemIndex].Use(endTime - startTime + 1f);
-                        }
-
-                    }
+                    startTime = Time.time;
                 }
 
-            }
+                if (Input.GetMouseButton(0))
+                {
 
-            if (Input.GetMouseButtonDown(1))
-            {
-                //items[itemIndex].LetGo();
+                    float holdTime = Time.time - startTime;
+                    throwUI[1].fillAmount = holdTime / maxHoldTime; // set the fill amount based on how long the button has been held down
+                }
+                if (Input.GetMouseButtonUp(0))
+                {
+                    throwUI[1].fillAmount = 0;
+                    playerMechanics.SetThrow(true);
+                    Invoke(nameof(ThrowWithDelay), 1f);
+                }
+
+                if (Input.GetMouseButtonDown(1))
+                {
+                    //items[itemIndex].LetGo();
+                }
             }
+        }
+
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            throwUI[0].enabled = !equipped;
+            playerMechanics.SetEquipped(!equipped);
+            equippedEspada.enabled = !equipped;
+            equipped = !equipped;
         }
 
         if (transform.position.y < -10f)
@@ -145,6 +142,31 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
         {
             pauseMenu.isPaused = !pauseMenu.isPaused;
         }
+    }
+
+    void ThrowWithDelay()
+    {
+        float endTime = Time.time;
+        if (endTime > startTime)
+        {
+            if (endTime - startTime < 1)
+            {
+                items[itemIndex].Use(endTime - startTime + 1f);
+            }
+            else
+            {
+                if (endTime - startTime > maxHoldTime)
+                {
+                    items[itemIndex].Use(maxHoldTime + 1f);
+                }
+                else
+                {
+                    items[itemIndex].Use(endTime - startTime + 1f);
+                }
+
+            }
+        }
+        playerMechanics.SetThrow(false);
     }
 
     void Start()

@@ -41,7 +41,15 @@ namespace Assets.Scripts.Player
         {
             grounded = _grounded;
         }
+        public void SetThrow(bool _throw)
+        {
+            PlayerAnimation.SetThrowEspada(_throw);
+        }
 
+        public void SetEquipped(bool _equipped)
+        {
+            PlayerAnimation.SetEquipped(_equipped);
+        }
         void Move()
         {
             Vector3 moveDir;
