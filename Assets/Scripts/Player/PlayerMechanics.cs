@@ -50,6 +50,11 @@ namespace Assets.Scripts.Player
         {
             PlayerAnimation.SetEquipped(_equipped);
         }
+
+        public void SetIgnite(bool _ignite)
+        {
+            PlayerAnimation.SetIgnite(_ignite);
+        }
         void Move()
         {
             Vector3 moveDir;

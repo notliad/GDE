@@ -13,7 +13,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
     [SerializeField] GameObject cameraHolder;
     [SerializeField] float mouseSensitivity, sprintSpeed, walkSpeed, jumpForce, smoothTime;
     [SerializeField] Animator animator;
-    [SerializeField] MeshRenderer equippedEspada;
+    [SerializeField] GameObject equippedEspada;
 
     [SerializeField] Collider headCollider;
     [SerializeField] Collider armsCollider;
@@ -42,6 +42,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
 
     PlayerManager playerManager;
     PauseManager pauseMenu;
+    IgniteEspada igniteEspada;
     public PlayerMechanics playerMechanics;
 
     void Awake()
@@ -52,6 +53,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
         pauseMenu = GetComponentInChildren<PauseManager>();
         playerManager = PhotonView.Find((int)PV.InstantiationData[0]).GetComponent<PlayerManager>();
         playerMechanics = new PlayerMechanics(this, cameraHolder, animator);
+        igniteEspada = GetComponentInChildren<IgniteEspada>();
     }
 
     void Update()
@@ -128,8 +130,20 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
         {
             throwUI[0].enabled = !equipped;
             playerMechanics.SetEquipped(!equipped);
-            equippedEspada.enabled = !equipped;
+            equippedEspada.GetComponent<MeshRenderer>().enabled = !equipped;
             equipped = !equipped;
+        }
+
+        if (Input.GetKeyDown(KeyCode.F))
+        {
+            if (equipped)
+            {
+                playerMechanics.SetIgnite(true);
+                igniteEspada.SetTicao(true);
+                Invoke(nameof(StartEspadaParticles), 1f);
+                Invoke(nameof(StopIgniteAnimation), 4f);
+
+            }
         }
 
         if (transform.position.y < -10f)
@@ -142,6 +156,17 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
         {
             pauseMenu.isPaused = !pauseMenu.isPaused;
         }
+    }
+
+    void StartEspadaParticles()
+    {
+        igniteEspada.Ignite();
+    }
+
+    void StopIgniteAnimation()
+    {
+        playerMechanics.SetIgnite(false);
+        igniteEspada.SetTicao(false);
     }
 
     void ThrowWithDelay()

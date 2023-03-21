@@ -44,5 +44,10 @@ namespace Assets.Scripts.Player
         {
             _animator.SetBool("Equipped", equipped);
         }
+
+        public void SetIgnite(bool ignite)
+        {
+            _animator.SetBool("Ignite", ignite);
+        }
     }
 }
