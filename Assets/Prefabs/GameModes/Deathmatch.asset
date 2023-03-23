@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0d311103cd99d074b92cbcb424e96641, type: 3}
+  m_Name: Deathmatch
+  m_EditorClassIdentifier: 
+  _Name: Fogueira
+  _Description: "Elimine os times advers\xE1rios"
+  _MaxPlayers: 8
+  _MinPlayers: 2
+  _TeamSize: 4

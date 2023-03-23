@@ -251,29 +251,30 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
 
     public void TakeDamage(float damage, Collider collider)
     {
+        damage = damage * 100f;
         if (collider == headCollider)
         {
-            PV.RPC("RPC_TakeDamage", RpcTarget.All, damage * 2f);
+            PV.RPC("RPC_TakeDamage", RpcTarget.All, damage * 2f * 100f);
 
         }
         if (collider == chestCollider)
         {
-            PV.RPC("RPC_TakeDamage", RpcTarget.All, damage);
+            PV.RPC("RPC_TakeDamage", RpcTarget.All, damage * 100f);
 
         }
         if (collider == armsCollider)
         {
-            PV.RPC("RPC_TakeDamage", RpcTarget.All, damage);
+            PV.RPC("RPC_TakeDamage", RpcTarget.All, damage * 100f);
 
         }
         if (collider == legsCollider)
         {
-            PV.RPC("RPC_TakeDamage", RpcTarget.All, damage * 0.5f);
+            PV.RPC("RPC_TakeDamage", RpcTarget.All, damage * 0.5f * 100f);
 
         }
         if (collider == feetCollider)
         {
-            PV.RPC("RPC_TakeDamage", RpcTarget.All, damage * 0.5f);
+            PV.RPC("RPC_TakeDamage", RpcTarget.All, damage * 0.5f * 100f);
 
         }
     }
@@ -303,5 +304,6 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDamageable
     void Die()
     {
         playerManager.Die();
+        GameState.Instance.OnPlayerDied(PhotonNetwork.LocalPlayer.NickName);
     }
 }
