@@ -16,6 +16,7 @@ public class SpawnManager : MonoBehaviour
 
     public Transform GetSpawnPoint(int team)
     {
+        Debug.Log($"GetSpawnPoint: team {team}");
         if (team == 1)
         {
             return spawnpointsTeamOne[Random.Range(0, spawnpointsTeamOne.Length)].transform;
