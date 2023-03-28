@@ -27,6 +27,7 @@ public class PlayerManager : MonoBehaviour
     void CreateController()
     {
         var team = PhotonNetwork.LocalPlayer.GetPhotonTeam();
+        Debug.Log($"team {team?.Name ?? "NULL"}"); 
         Transform spawnpoint = SpawnManager.Instance.GetSpawnPoint((int)team.Code);
         controller = PhotonNetwork.Instantiate(Path.Combine("PhotonPrefabs", "PlayerController"), spawnpoint.position, spawnpoint.rotation, 0, new object[] { PV.ViewID });
     }

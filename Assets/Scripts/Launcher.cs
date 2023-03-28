@@ -36,6 +36,7 @@ public class Launcher : MonoBehaviourPunCallbacks, IOnEventCallback
     {
         Instance = this;
         playerLists = new Dictionary<int, Transform> { { 0, playerListContent }, { 1, playerListTeamOne }, { 2, playerListTeamTwo } };
+        //PhotonTeamsManager.Instance.
     }
 
     void Start()
